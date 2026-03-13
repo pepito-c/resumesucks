@@ -365,6 +365,30 @@
       margin-bottom: 7px;
     }
 
+    .sample-content .ats-score-callout {
+      background: #2a1500;
+      border: 2px solid #ff9500;
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sample-content .ats-score-callout .score-number {
+      display: block;
+      color: #ff9500;
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .sample-content .ats-score-callout .score-label {
+      display: block;
+      color: #a07030;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
     .sample-content .ats-title {
       color: #ff9500;
       font-size: 1.05rem;
@@ -524,14 +548,19 @@
     <header>
       <h1>Your Resume Is Getting <span>Filtered</span><br>Before Humans See It</h1>
       <p class="subheadline">
-        AI-powered resume analysis that goes beyond a generic critique — ATS keyword scoring, a full rewrite, and your AI-proof case. <strong>$12.</strong>
+        Get your ATS match score, find the exact keywords you're missing, and get a full resume rewrite tailored for this job. <strong>$12 one-time.</strong>
       </p>
-      <p class="ai-proof-callout">📋 <strong>5 sections:</strong> Roast · Rewrite · Wins · AI-Proof Case · ATS Score</p>
+      <p class="ai-proof-callout">📊 <strong>5 sections:</strong> ATS Score · Roast · Rewrite · AI-Proof Case · Wins</p>
     </header>
 
     <section class="features-section" aria-label="What you get">
       <h2>What You Get</h2>
       <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <span class="feature-title">ATS Score</span>
+          <span class="feature-desc">Your resume vs. the job description — scored. See exactly which keywords ATS filters are killing you on before a human ever reads it.</span>
+        </div>
         <div class="feature-card">
           <span class="feature-icon">🔥</span>
           <span class="feature-title">Brutal Roast</span>
@@ -543,19 +572,14 @@
           <span class="feature-desc">Your resume, rewritten for this exact job. Every bullet sharpened. Every weak verb replaced.</span>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">🏆</span>
-          <span class="feature-title">What's Working</span>
-          <span class="feature-desc">3 real strengths to keep and amplify — not fake positivity, actual signal worth keeping.</span>
-        </div>
-        <div class="feature-card">
           <span class="feature-icon">🤖</span>
           <span class="feature-title">AI-Proof Case</span>
           <span class="feature-desc">Why you're harder to replace than AI for this role — specific to your experience and the job.</span>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">📊</span>
-          <span class="feature-title">ATS Score</span>
-          <span class="feature-desc">The exact keywords you're missing that filters are killing you on — with suggested rewrites.</span>
+          <span class="feature-icon">🏆</span>
+          <span class="feature-title">What's Working</span>
+          <span class="feature-desc">3 real strengths to keep and amplify — not fake positivity, actual signal worth keeping.</span>
         </div>
       </div>
     </section>
@@ -610,6 +634,42 @@
       <div class="sample-content" id="sampleAlex" role="region">
         <p class="candidate-note">Candidate: Alex Johnson &nbsp;·&nbsp; Target role: Senior Product Manager, Series B SaaS startup</p>
 
+        <div class="ats-score-callout">
+          <span class="score-number">ATS Match Score: 58%</span>
+          <span class="score-label">You're getting through about half the time — the job posting is loaded with terms your resume doesn't mention once</span>
+        </div>
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p style="margin-top:4px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"OKRs" — appears 3 times in the JD. Your resume never mentions it. Every PM at a Series B SaaS is expected to live in OKRs.</li>
+            <li>"product-led growth" — this is the entire go-to-market motion of the company. Your resume has zero PLG signal.</li>
+            <li>"churn reduction" — you cut cart abandonment but never used this phrase. The ATS won't connect the dots.</li>
+            <li>"NPS" / "Net Promoter Score" — standard PM metric. Not mentioned anywhere.</li>
+            <li>"go-to-market" — appears in the JD multiple times. Your resume is silent on GTM involvement.</li>
+            <li>"A/B testing" — every modern PM role expects this. Your rewrite mentions it once; the original doesn't.</li>
+            <li>"stakeholder alignment" — you did this, but the exact phrase is absent.</li>
+            <li>"customer discovery" / "user research" — the JD calls this out explicitly. No mention on your resume.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"roadmap" ✓</li>
+            <li>"cross-functional" ✓</li>
+            <li>"onboarding" ✓</li>
+            <li>"SaaS" ✓</li>
+            <li>"Mixpanel" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Add to summary: "Drove product-led growth initiatives that reduced churn 18% and improved NPS by 12 points."</li>
+            <li>Add to job bullets: "Defined and tracked quarterly OKRs across 3 eng squads; reported weekly progress to executive team."</li>
+            <li>Add new bullet: "Led go-to-market coordination for 2 major feature launches; partnered with Sales and CS to drive adoption and reduce time-to-value."</li>
+          </ul>
+        </div>
+
+        <hr class="divider">
+
         <h3>🔥 The Roast</h3>
         <ul>
           <li><strong>"Results-driven professional with a passion for innovation."</strong> Oh good, you copy-pasted from the 2009 LinkedIn template like everyone else. This sentence says nothing, means nothing, and actively makes you look like you've never seen a good resume. Delete it. Burn it. Never write it again.</li>
@@ -660,38 +720,6 @@ SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
           </ul>
         </div>
 
-        <hr class="divider">
-
-        <p class="ats-title">📊 ATS Keyword Analysis</p>
-        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
-        <div class="ats-block">
-          <p><strong>ATS Match Score: 58%</strong> — You're getting through about half the time. The job posting is loaded with terms your resume doesn't mention once.</p>
-          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
-          <ul>
-            <li>"OKRs" — appears 3 times in the JD. Your resume never mentions it. Every PM at a Series B SaaS is expected to live in OKRs.</li>
-            <li>"product-led growth" — this is the entire go-to-market motion of the company. Your resume has zero PLG signal.</li>
-            <li>"churn reduction" — you cut cart abandonment but never used this phrase. The ATS won't connect the dots.</li>
-            <li>"NPS" / "Net Promoter Score" — standard PM metric. Not mentioned anywhere.</li>
-            <li>"go-to-market" — appears in the JD multiple times. Your resume is silent on GTM involvement.</li>
-            <li>"A/B testing" — every modern PM role expects this. Your rewrite mentions it once; the original doesn't.</li>
-            <li>"stakeholder alignment" — you did this, but the exact phrase is absent.</li>
-            <li>"customer discovery" / "user research" — the JD calls this out explicitly. No mention on your resume.</li>
-          </ul>
-          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
-          <ul>
-            <li>"roadmap" ✓</li>
-            <li>"cross-functional" ✓</li>
-            <li>"onboarding" ✓</li>
-            <li>"SaaS" ✓</li>
-            <li>"Mixpanel" ✓</li>
-          </ul>
-          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
-          <ul>
-            <li>Add to summary: "Drove product-led growth initiatives that reduced churn 18% and improved NPS by 12 points."</li>
-            <li>Add to job bullets: "Defined and tracked quarterly OKRs across 3 eng squads; reported weekly progress to executive team."</li>
-            <li>Add new bullet: "Led go-to-market coordination for 2 major feature launches; partnered with Sales and CS to drive adoption and reduce time-to-value."</li>
-          </ul>
-        </div>
       </div>
 
       <!-- Accordion item 2: Jordan Lee -->
@@ -705,6 +733,42 @@ SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
 
       <div class="sample-content" id="sampleJordan" role="region">
         <p class="candidate-note">Candidate: Jordan Lee &nbsp;·&nbsp; Target role: Senior Software Engineer, early-stage startup</p>
+
+        <div class="ats-score-callout">
+          <span class="score-number">ATS Match Score: 51%</span>
+          <span class="score-label">Just over half — the JD is dense with infrastructure terms your resume never touches, even though you've done this work</span>
+        </div>
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p style="margin-top:4px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"distributed systems" — mentioned 4 times in the JD. Your resume says "microservices" in the rewrite but not the original. The ATS is scanning for the exact phrase.</li>
+            <li>"microservices" — same issue. You led a migration to microservices but the word appears only once and buried in a bullet.</li>
+            <li>"CI/CD" — you rebuilt the pipeline, but "CI/CD" as a keyword doesn't appear anywhere in the original resume.</li>
+            <li>"system design" — the JD explicitly asks for system design experience. Your resume has no mention.</li>
+            <li>"on-call" — every startup SWE role includes this. If you've been on-call, say so.</li>
+            <li>"Kubernetes" / "container orchestration" — increasingly standard in JDs at this level. Not mentioned.</li>
+            <li>"code review" — soft signal the ATS often catches. Not present.</li>
+            <li>"SLO" / "SLA" / "uptime" — reliability language that matches the JD's focus on production systems.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"Go" / "Golang" ✓</li>
+            <li>"Python" ✓</li>
+            <li>"Docker" ✓</li>
+            <li>"GitHub Actions" ✓</li>
+            <li>"latency" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Add to summary: "5 years designing and operating distributed systems in Go and Python at scale."</li>
+            <li>Rewrite migration bullet: "Led monolith-to-microservices migration with CI/CD automation via GitHub Actions; zero-downtime rollout across 4 services."</li>
+            <li>Add new bullet: "Participated in on-call rotation; drove system design reviews for new services to reduce incident rate 35% over 6 months."</li>
+          </ul>
+        </div>
+
+        <hr class="divider">
 
         <h3>🔥 The Roast</h3>
         <ul>
@@ -756,38 +820,6 @@ SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
           </ul>
         </div>
 
-        <hr class="divider">
-
-        <p class="ats-title">📊 ATS Keyword Analysis</p>
-        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
-        <div class="ats-block">
-          <p><strong>ATS Match Score: 51%</strong> — Just over half. The JD is dense with infrastructure and architecture terms that your resume never touches, even though you've almost certainly done this work.</p>
-          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
-          <ul>
-            <li>"distributed systems" — mentioned 4 times in the JD. Your resume says "microservices" in the rewrite but not the original. The ATS is scanning for the exact phrase.</li>
-            <li>"microservices" — same issue. You led a migration to microservices but the word appears only once and buried in a bullet.</li>
-            <li>"CI/CD" — you rebuilt the pipeline, but "CI/CD" as a keyword doesn't appear anywhere in the original resume.</li>
-            <li>"system design" — the JD explicitly asks for system design experience. Your resume has no mention.</li>
-            <li>"on-call" — every startup SWE role includes this. If you've been on-call, say so.</li>
-            <li>"Kubernetes" / "container orchestration" — increasingly standard in JDs at this level. Not mentioned.</li>
-            <li>"code review" — soft signal the ATS often catches. Not present.</li>
-            <li>"SLO" / "SLA" / "uptime" — reliability language that matches the JD's focus on production systems.</li>
-          </ul>
-          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
-          <ul>
-            <li>"Go" / "Golang" ✓</li>
-            <li>"Python" ✓</li>
-            <li>"Docker" ✓</li>
-            <li>"GitHub Actions" ✓</li>
-            <li>"latency" ✓</li>
-          </ul>
-          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
-          <ul>
-            <li>Add to summary: "5 years designing and operating distributed systems in Go and Python at scale."</li>
-            <li>Rewrite migration bullet: "Led monolith-to-microservices migration with CI/CD automation via GitHub Actions; zero-downtime rollout across 4 services."</li>
-            <li>Add new bullet: "Participated in on-call rotation; drove system design reviews for new services to reduce incident rate 35% over 6 months."</li>
-          </ul>
-        </div>
       </div>
 
       <!-- Accordion item 3: Sam Rivera -->
@@ -801,6 +833,42 @@ SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
 
       <div class="sample-content" id="sampleSam" role="region">
         <p class="candidate-note">Candidate: Sam Rivera &nbsp;·&nbsp; Target role: Head of Marketing, growth-stage startup</p>
+
+        <div class="ats-score-callout">
+          <span class="score-number">ATS Match Score: 44%</span>
+          <span class="score-label">Well under half — this is a demand gen-heavy role and your resume reads like a brand/comms resume</span>
+        </div>
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p style="margin-top:4px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"demand generation" — the most critical term for this role. Appears 5 times in the JD. Zero times on your resume.</li>
+            <li>"MQL" (Marketing Qualified Lead) — standard demand gen metric. Not mentioned anywhere.</li>
+            <li>"pipeline attribution" — you built an attribution model but never used this phrase.</li>
+            <li>"CAC" (Customer Acquisition Cost) — you cut it 38% but didn't write "CAC" on your resume. The ATS won't connect "$310 to $192" to this keyword.</li>
+            <li>"marketing qualified lead" — same as MQL, but written out. Some ATS systems scan for both.</li>
+            <li>"HubSpot" — you used it. It's not on the original resume.</li>
+            <li>"ABM" (Account-Based Marketing) — you ran an ABM campaign. The acronym doesn't appear.</li>
+            <li>"funnel optimization" — heavily implied by your work but the exact phrase is absent.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"pipeline" ✓</li>
+            <li>"paid acquisition" ✓</li>
+            <li>"content" ✓</li>
+            <li>"attribution" ✓</li>
+            <li>"B2B" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Update summary: "Demand generation leader with 7 years driving MQL volume and pipeline for B2B and DTC brands."</li>
+            <li>Rewrite attribution bullet: "Built multi-touch pipeline attribution model in HubSpot + Segment; gave exec team first-ever view of CAC by channel and MQL-to-close conversion rates."</li>
+            <li>Add new bullet: "Reduced CAC 38% through funnel optimization and demand generation mix rebalancing — cut spend on low-converting channels, reinvested in ABM."</li>
+          </ul>
+        </div>
+
+        <hr class="divider">
 
         <h3>🔥 The Roast</h3>
         <ul>
@@ -852,38 +920,6 @@ HEAD OF MARKETING — BrandCo (2023–present)
           </ul>
         </div>
 
-        <hr class="divider">
-
-        <p class="ats-title">📊 ATS Keyword Analysis</p>
-        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
-        <div class="ats-block">
-          <p><strong>ATS Match Score: 44%</strong> — Well under half. This is a demand gen-heavy role and your resume reads like a brand/comms resume. The ATS is looking for revenue-tied language you're not using.</p>
-          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
-          <ul>
-            <li>"demand generation" — the most critical term for this role. Appears 5 times in the JD. Zero times on your resume.</li>
-            <li>"MQL" (Marketing Qualified Lead) — standard demand gen metric. Not mentioned anywhere.</li>
-            <li>"pipeline attribution" — you built an attribution model but never used this phrase.</li>
-            <li>"CAC" (Customer Acquisition Cost) — you cut it 38% but didn't write "CAC" on your resume. The ATS won't connect "$310 to $192" to this keyword.</li>
-            <li>"marketing qualified lead" — same as MQL, but written out. Some ATS systems scan for both.</li>
-            <li>"HubSpot" — you used it. It's not on the original resume.</li>
-            <li>"ABM" (Account-Based Marketing) — you ran an ABM campaign. The acronym doesn't appear.</li>
-            <li>"funnel optimization" — heavily implied by your work but the exact phrase is absent.</li>
-          </ul>
-          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
-          <ul>
-            <li>"pipeline" ✓</li>
-            <li>"paid acquisition" ✓</li>
-            <li>"content" ✓</li>
-            <li>"attribution" ✓</li>
-            <li>"B2B" ✓</li>
-          </ul>
-          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
-          <ul>
-            <li>Update summary: "Demand generation leader with 7 years driving MQL volume and pipeline for B2B and DTC brands."</li>
-            <li>Rewrite attribution bullet: "Built multi-touch pipeline attribution model in HubSpot + Segment; gave exec team first-ever view of CAC by channel and MQL-to-close conversion rates."</li>
-            <li>Add new bullet: "Reduced CAC 38% through funnel optimization and demand generation mix rebalancing — cut spend on low-converting channels, reinvested in ABM."</li>
-          </ul>
-        </div>
       </div>
     </section>
   </div>

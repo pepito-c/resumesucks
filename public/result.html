@@ -243,61 +243,76 @@
     const pollStatus = document.getElementById("pollStatus");
 
     function renderResult(text) {
-      // Split out ATS section first (section 5), then AI-Proof (section 4)
-      const atsRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?/i;
-      const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
+      // New prompt order: 1. ATS KEYWORD ANALYSIS, 2. THE ROAST, 3. THE FIX, 4. TOP 3 WINS, 5. YOUR AI-PROOF CASE
+      // ATS renders first (immediately visible on page load), AI-Proof gets styled box at end.
+      const atsRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?/i;
+      const roastRegex   = /(?:^|\n)(#+\s*)?(\*\*)?(?:2\.\s*)?THE ROAST(\*\*)?\s*[-–]?/i;
+      const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
 
       const atsIdx     = text.search(atsRegex);
+      const roastIdx   = text.search(roastRegex);
       const aiProofIdx = text.search(aiProofRegex);
 
-      let mainPart, aiPart, atsPart;
-
-      if (atsIdx !== -1) {
-        mainPart = text.slice(0, Math.min(aiProofIdx !== -1 ? aiProofIdx : atsIdx, atsIdx !== -1 ? atsIdx : Infinity));
-        if (aiProofIdx !== -1 && aiProofIdx < atsIdx) {
-          // AI-Proof comes before ATS
-          mainPart = text.slice(0, aiProofIdx);
-          aiPart   = text.slice(aiProofIdx, atsIdx);
-          atsPart  = text.slice(atsIdx);
-        } else if (aiProofIdx !== -1) {
-          // ATS comes before AI-Proof (unusual but handle it)
-          mainPart = text.slice(0, atsIdx);
-          atsPart  = text.slice(atsIdx, aiProofIdx);
-          aiPart   = text.slice(aiProofIdx);
-        } else {
-          mainPart = text.slice(0, atsIdx);
-          atsPart  = text.slice(atsIdx);
-          aiPart   = null;
-        }
-      } else if (aiProofIdx !== -1) {
-        mainPart = text.slice(0, aiProofIdx);
-        aiPart   = text.slice(aiProofIdx);
-        atsPart  = null;
-      } else {
+      // Fallback: if we can't find the expected structure, render as plain markdown
+      if (atsIdx === -1 && aiProofIdx === -1) {
         return markdownToHtml(text);
       }
 
-      let html = markdownToHtml(mainPart);
+      let atsPart, mainPart, aiPart;
 
-      if (aiPart) {
-        const aiContent = aiPart
-          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
-          .trim();
-        html += `<div class="ai-proof-section">
-            <div class="ai-proof-header">🤖 Your AI-Proof Case</div>
-            <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
-            ${markdownToHtml(aiContent)}
-          </div>`;
+      if (atsIdx !== -1 && roastIdx !== -1) {
+        // Expected happy path: ATS first, then main content, then AI-Proof at end
+        atsPart  = text.slice(atsIdx, roastIdx);
+        if (aiProofIdx !== -1 && aiProofIdx > roastIdx) {
+          mainPart = text.slice(roastIdx, aiProofIdx);
+          aiPart   = text.slice(aiProofIdx);
+        } else {
+          mainPart = text.slice(roastIdx);
+          aiPart   = null;
+        }
+      } else if (atsIdx !== -1 && aiProofIdx !== -1 && aiProofIdx > atsIdx) {
+        // ATS found but no explicit roast marker — split on AI-Proof
+        atsPart  = text.slice(atsIdx, aiProofIdx);
+        mainPart = "";
+        aiPart   = text.slice(aiProofIdx);
+      } else if (aiProofIdx !== -1) {
+        // Older format fallback: no ATS section found, just split out AI-Proof
+        atsPart  = null;
+        mainPart = text.slice(0, aiProofIdx);
+        aiPart   = text.slice(aiProofIdx);
+      } else {
+        // ATS found but no AI-Proof
+        atsPart  = text.slice(atsIdx);
+        mainPart = atsIdx > 0 ? text.slice(0, atsIdx) : "";
+        aiPart   = null;
       }
 
+      let html = "";
+
+      // ATS section renders FIRST — person sees their score immediately
       if (atsPart) {
         const atsContent = atsPart
-          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?\s*/i, "")
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?\s*/i, "")
           .trim();
         html += `<div class="ats-section">
             <div class="ats-header">📊 ATS Keyword Analysis</div>
             <div class="ats-subtitle">Why the algorithm might be ghosting you</div>
             ${markdownToHtml(atsContent)}
+          </div>`;
+      }
+
+      if (mainPart) {
+        html += markdownToHtml(mainPart);
+      }
+
+      if (aiPart) {
+        const aiContent = aiPart
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
+          .trim();
+        html += `<div class="ai-proof-section">
+            <div class="ai-proof-header">🤖 Your AI-Proof Case</div>
+            <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
+            ${markdownToHtml(aiContent)}
           </div>`;
       }
 
