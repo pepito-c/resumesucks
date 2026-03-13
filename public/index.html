@@ -541,6 +541,116 @@
       margin-top: 5px;
       display: none;
     }
+
+    /* ── Score reveal section ─────────────────────────────────────────────── */
+    #scoreReveal {
+      display: none;
+      margin-top: 40px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 36px 32px;
+    }
+
+    #scoreReveal.visible { display: block; }
+
+    .score-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .score-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .score-number-big {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #ff9500;
+      line-height: 1;
+      display: block;
+    }
+
+    .score-interpretation {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .keywords-section {
+      margin-top: 24px;
+    }
+
+    .keywords-section h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 12px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .pill-missing {
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid rgba(255, 77, 77, 0.35);
+      color: #ff8080;
+    }
+
+    .pill-present {
+      background: rgba(77, 255, 145, 0.1);
+      border: 1px solid rgba(77, 255, 145, 0.3);
+      color: #4dff91;
+      font-size: 0.78rem;
+    }
+
+    .upsell-block {
+      text-align: center;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .upsell-btn {
+      display: inline-block;
+      background: #ff9500;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 48px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .upsell-btn:hover { background: #e08600; }
+    .upsell-btn:active { transform: scale(0.98); }
+    .upsell-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .upsell-sub {
+      margin-top: 12px;
+      color: #666;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
@@ -610,11 +720,36 @@
       </div>
 
       <div class="cta-wrap">
-        <button type="submit" class="cta" id="ctaBtn">Roast My Resume &rarr; $9</button>
-        <p class="trust-line">We sharpen what's real. We don't invent what isn't. No fake metrics, no fabricated achievements — just your actual experience, written to land.</p>
+        <button type="submit" class="cta" id="ctaBtn">Get My Free ATS Score &rarr;</button>
+        <p class="trust-line">Instant. No payment. See your score + missing keywords in seconds.</p>
       </div>
       <p class="error-msg" id="errorMsg"></p>
     </form>
+
+    <!-- Score reveal (shown after free ATS check) -->
+    <div id="scoreReveal">
+      <div class="score-header">
+        <h2>Your ATS Match Score</h2>
+        <span class="score-number-big" id="scoreDisplay">0%</span>
+        <p class="score-interpretation" id="scoreInterpretation"></p>
+      </div>
+
+      <div class="keywords-section" id="missingSection" style="display:none">
+        <h3>❌ Keywords ATS filters are scanning for (not found in your resume):</h3>
+        <div class="pill-list" id="missingPills"></div>
+      </div>
+
+      <div class="keywords-section" id="presentSection" style="display:none; margin-top:16px;">
+        <h3>✅ Keywords you have covered:</h3>
+        <div class="pill-list" id="presentPills"></div>
+      </div>
+
+      <div class="upsell-block">
+        <button class="upsell-btn" id="upsellBtn">Get the Full Analysis — Roast, Rewrite &amp; Fix &rarr; $9</button>
+        <p class="upsell-sub">Includes brutal roast, full rewrite, AI-proof case, and specific sentences to add for each missing keyword</p>
+        <p class="error-msg" id="upsellErrorMsg"></p>
+      </div>
+    </div>
   </div>
 
   <div class="container">
@@ -1049,10 +1184,44 @@ HEAD OF MARKETING — BrandCo (2023–present)
       jobDescTA.value = "";
     });
 
-    // Roast form
+    // ── ATS Score form ────────────────────────────────────────────────────────
     const form = document.getElementById("roastForm");
     const btn = document.getElementById("ctaBtn");
     const errorMsg = document.getElementById("errorMsg");
+    const scoreReveal = document.getElementById("scoreReveal");
+
+    let currentAtsId = null; // store after free check for upsell
+
+    function getScoreInterpretation(score) {
+      if (score <= 40) return "🚨 High risk of being filtered";
+      if (score <= 65) return "⚠️ Borderline — many ATS will filter this";
+      if (score <= 85) return "✅ Decent match — room to improve";
+      return "🟢 Strong match";
+    }
+
+    function animateCounter(el, target, suffix) {
+      const duration = 800;
+      const start = performance.now();
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function renderPills(container, keywords, pillClass) {
+      container.innerHTML = "";
+      keywords.forEach(kw => {
+        const pill = document.createElement("span");
+        pill.className = `pill ${pillClass}`;
+        pill.textContent = kw;
+        container.appendChild(pill);
+      });
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1069,15 +1238,76 @@ HEAD OF MARKETING — BrandCo (2023–present)
       }
 
       btn.disabled = true;
-      btn.textContent = isUrlMode ? "Fetching job posting..." : "Redirecting to payment...";
+      btn.textContent = "Analyzing your resume...";
+      scoreReveal.classList.remove("visible");
 
       try {
         const payload = { resume };
-        if (isUrlMode) {
-          payload.jobUrl = jobUrl;
-        } else {
-          payload.jobDescription = jobDescription;
+        if (isUrlMode) payload.jobUrl = jobUrl;
+        else payload.jobDescription = jobDescription;
+
+        const res = await fetch("/ats-score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "Something went wrong.");
+
+        currentAtsId = data.id;
+
+        // Reveal section
+        scoreReveal.classList.add("visible");
+        scoreReveal.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // Animate score counter
+        const scoreEl = document.getElementById("scoreDisplay");
+        animateCounter(scoreEl, data.score, "%");
+
+        document.getElementById("scoreInterpretation").textContent =
+          getScoreInterpretation(data.score);
+
+        if (data.missing && data.missing.length > 0) {
+          const missingSection = document.getElementById("missingSection");
+          missingSection.style.display = "";
+          renderPills(document.getElementById("missingPills"), data.missing, "pill-missing");
         }
+
+        if (data.present && data.present.length > 0) {
+          const presentSection = document.getElementById("presentSection");
+          presentSection.style.display = "";
+          renderPills(document.getElementById("presentPills"), data.present, "pill-present");
+        }
+
+      } catch (err) {
+        errorMsg.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Get My Free ATS Score \u2192";
+      }
+    });
+
+    // ── Upsell button → Stripe checkout ──────────────────────────────────────
+    const upsellBtn = document.getElementById("upsellBtn");
+    const upsellErrorMsg = document.getElementById("upsellErrorMsg");
+
+    upsellBtn.addEventListener("click", async () => {
+      upsellErrorMsg.textContent = "";
+      upsellBtn.disabled = true;
+      upsellBtn.textContent = "Redirecting to payment...";
+
+      try {
+        const payload = currentAtsId
+          ? { atsId: currentAtsId }
+          : {
+              resume: document.getElementById("resume").value.trim(),
+              jobDescription: modeUrlBtn.classList.contains("active")
+                ? "" : jobDescTA.value.trim(),
+              jobUrl: modeUrlBtn.classList.contains("active")
+                ? jobUrlInput.value.trim() : "",
+            };
 
         const res = await fetch("/create-checkout-session", {
           method: "POST",
@@ -1086,16 +1316,12 @@ HEAD OF MARKETING — BrandCo (2023–present)
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong.");
-        }
-
+        if (!res.ok) throw new Error(data.error || "Something went wrong.");
         window.location.href = data.url;
       } catch (err) {
-        errorMsg.textContent = err.message;
-        btn.disabled = false;
-        btn.textContent = "Roast My Resume \u2192 $9";
+        upsellErrorMsg.textContent = err.message;
+        upsellBtn.disabled = false;
+        upsellBtn.textContent = "Get the Full Analysis — Roast, Rewrite & Fix \u2192 $9";
       }
     });
   </script>

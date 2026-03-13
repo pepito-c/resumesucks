@@ -26,24 +26,51 @@ db.exec(`
     email TEXT,
     paid INTEGER NOT NULL DEFAULT 0,
     result TEXT,
+    ats_id TEXT,
+    created_at INTEGER NOT NULL
+  )
+`);
+
+// Add ats_id column if it doesn't exist (migration for existing DBs)
+try {
+  db.exec(`ALTER TABLE jobs ADD COLUMN ats_id TEXT`);
+} catch (_) { /* column already exists */ }
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ats_checks (
+    id TEXT PRIMARY KEY,
+    resume TEXT NOT NULL,
+    job_description TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    missing_keywords TEXT NOT NULL,
     created_at INTEGER NOT NULL
   )
 `);
 
 // Prepared statements
 const stmtInsert = db.prepare(
-  `INSERT INTO jobs (id, resume, job_description, email, paid, result, created_at)
-   VALUES (@id, @resume, @job_description, @email, @paid, @result, @created_at)`
+  `INSERT INTO jobs (id, resume, job_description, email, paid, result, ats_id, created_at)
+   VALUES (@id, @resume, @job_description, @email, @paid, @result, @ats_id, @created_at)`
 );
 const stmtGet    = db.prepare(`SELECT * FROM jobs WHERE id = ?`);
 const stmtUpdate = db.prepare(`UPDATE jobs SET paid = @paid, email = @email WHERE id = @id`);
 const stmtResult = db.prepare(`UPDATE jobs SET result = @result WHERE id = @id`);
 const stmtDelete = db.prepare(`DELETE FROM jobs WHERE created_at < ?`);
 
+// ATS checks statements
+const stmtAtsInsert = db.prepare(
+  `INSERT INTO ats_checks (id, resume, job_description, score, missing_keywords, created_at)
+   VALUES (@id, @resume, @job_description, @score, @missing_keywords, @created_at)`
+);
+const stmtAtsGet = db.prepare(`SELECT * FROM ats_checks WHERE id = ?`);
+const stmtAtsDelete = db.prepare(`DELETE FROM ats_checks WHERE created_at < ?`);
+
 function cleanOldJobs() {
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;
   const info = stmtDelete.run(cutoff);
   if (info.changes > 0) console.log(`Cleaned up ${info.changes} expired job(s)`);
+  const atsInfo = stmtAtsDelete.run(cutoff);
+  if (atsInfo.changes > 0) console.log(`Cleaned up ${atsInfo.changes} expired ATS check(s)`);
 }
 
 // Clean on startup + every hour
@@ -145,6 +172,139 @@ app.post(
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// ─── ATS Score computation (no Claude, no API cost) ──────────────────────────
+
+const STOPWORDS = new Set([
+  "a","an","the","and","or","but","is","are","was","were","be","been","being",
+  "have","has","had","do","does","did","will","would","shall","should","may",
+  "might","must","can","could","to","of","in","on","at","by","for","with",
+  "about","against","between","into","through","during","before","after",
+  "above","below","from","up","down","out","off","over","under","again",
+  "further","then","once","here","there","when","where","why","how","all",
+  "both","each","few","more","most","other","some","such","no","not","only",
+  "own","same","so","than","too","very","just","that","this","these","those",
+  "i","we","you","he","she","it","they","me","him","her","us","them","who",
+  "which","what","as","if","while","although","because","since","unless",
+  "their","our","your","his","its","my","any","well","also","using","work",
+  "working","use","used","ensure","help","strong","ability","excellent","great",
+  "good","new","high","large","key","years","experience","position","role",
+  "join","team","make","within","across","including","support","provide",
+  "develop","build","create","manage","lead","drive","define","own","run",
+  "get","set","stay","grow","take","bring","put","keep",
+  // Common job posting filler words
+  "looking","seeking","required","must","need","needs","candidate","candidates",
+  "ideal","preferred","plus","minimum","least","one","two","three","four","five",
+  "senior","junior","mid","level","based","remote","hybrid","onsite","full","time",
+  "part","contract","permanent","opportunity","join","company","team","startup",
+  "etc","apply","applicants","applicant","responsible","responsibilities",
+  "requirement","requirements","qualifications","qualification","desired",
+  "include","includes","including","related","relevant","similar","equivalent",
+  "proven","demonstrated","ability","able","comfortable","familiar","knowledge",
+  "background","track","record","prior","previous","please","submit","send",
+  "equal","employer","opportunity","benefits","compensation","salary","pay",
+]);
+
+function computeAtsScore(resume, jobDescription) {
+  const resumeLower = resume.toLowerCase();
+
+  // Tokenize job description into words (strip leading/trailing punctuation per token)
+  const rawWords = jobDescription.toLowerCase()
+    .replace(/[^a-z0-9\s+#./-]/g, " ")
+    .split(/\s+/)
+    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "")) // trim punctuation
+    .filter(w => w.length > 2 && !STOPWORDS.has(w));
+
+  // Count word frequency in JD
+  const wordFreq = {};
+  for (const w of rawWords) {
+    wordFreq[w] = (wordFreq[w] || 0) + 1;
+  }
+
+  // Build unigram keywords (appear at least once, not stopwords)
+  const unigrams = Object.keys(wordFreq);
+
+  // Extract 2-gram and 3-gram phrases that appear at least twice in the JD
+  const jdLower = jobDescription.toLowerCase().replace(/[^a-z0-9\s+#./-]/g, " ");
+  const jdWords = jdLower.split(/\s+/)
+    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
+    .filter(w => w.length > 0);
+  const phraseFreq = {};
+  for (let i = 0; i < jdWords.length - 1; i++) {
+    const w1 = jdWords[i], w2 = jdWords[i + 1];
+    if (!STOPWORDS.has(w1) && !STOPWORDS.has(w2) && w1.length > 2 && w2.length > 2) {
+      const phrase = `${w1} ${w2}`;
+      phraseFreq[phrase] = (phraseFreq[phrase] || 0) + 1;
+    }
+    if (i < jdWords.length - 2) {
+      const w3 = jdWords[i + 2];
+      if (!STOPWORDS.has(w1) && !STOPWORDS.has(w3) && w1.length > 2 && w2.length > 2 && w3.length > 2) {
+        const phrase3 = `${w1} ${w2} ${w3}`;
+        phraseFreq[phrase3] = (phraseFreq[phrase3] || 0) + 1;
+      }
+    }
+  }
+
+  // Collect multi-word phrases that appear 2+ times (higher signal)
+  const multiPhrases = Object.entries(phraseFreq)
+    .filter(([, freq]) => freq >= 2)
+    .map(([phrase]) => phrase);
+
+  // Deduplicate: prefer multi-word phrases, drop constituent unigrams they cover
+  const coveredByPhrase = new Set();
+  for (const phrase of multiPhrases) {
+    phrase.split(" ").forEach(w => coveredByPhrase.add(w));
+  }
+
+  // Final keyword list: multi-word phrases + unigrams not covered by a phrase
+  const candidates = [
+    ...multiPhrases,
+    ...unigrams.filter(w => !coveredByPhrase.has(w)),
+  ];
+
+  // Deduplicate
+  const keywords = [...new Set(candidates)];
+
+  // Check presence in resume
+  const present = [];
+  const missing = [];
+
+  for (const kw of keywords) {
+    if (resumeLower.includes(kw)) {
+      present.push(kw);
+    } else {
+      missing.push(kw);
+    }
+  }
+
+  const total = keywords.length;
+  const score = total === 0 ? 0 : Math.round((present.length / total) * 100);
+
+  // Sort missing by JD frequency (most-mentioned first) for top 10
+  const sortedMissing = missing.sort((a, b) => {
+    const freqA = a.includes(" ")
+      ? (phraseFreq[a] || 0)
+      : (wordFreq[a] || 0);
+    const freqB = b.includes(" ")
+      ? (phraseFreq[b] || 0)
+      : (wordFreq[b] || 0);
+    return freqB - freqA;
+  }).slice(0, 10);
+
+  // Top 5 present (by JD frequency)
+  const sortedPresent = present.sort((a, b) => {
+    const freqA = a.includes(" ") ? (phraseFreq[a] || 0) : (wordFreq[a] || 0);
+    const freqB = b.includes(" ") ? (phraseFreq[b] || 0) : (wordFreq[b] || 0);
+    return freqB - freqA;
+  }).slice(0, 5);
+
+  return {
+    score,
+    missing: sortedMissing,
+    present: sortedPresent,
+    total,
+  };
+}
+
 // ─── HTML stripping helper ────────────────────────────────────────────────────
 function stripHtml(html) {
   return html
@@ -161,9 +321,78 @@ function stripHtml(html) {
     .trim();
 }
 
+// Free ATS score — no Claude, no payment
+app.post("/ats-score", async (req, res) => {
+  const { resume, jobDescription: jobDescriptionRaw, jobUrl } = req.body;
+
+  if (!resume || (!jobDescriptionRaw && !jobUrl)) {
+    return res.status(400).json({ error: "Resume and job description (or URL) are required." });
+  }
+
+  let jobDescription = jobDescriptionRaw || "";
+
+  if (jobUrl) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      let fetchRes;
+      try {
+        fetchRes = await fetch(jobUrl, {
+          signal: controller.signal,
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; ResumeSucks/1.0)" },
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+      if (!fetchRes.ok) throw new Error(`HTTP ${fetchRes.status}`);
+      const html = await fetchRes.text();
+      jobDescription = stripHtml(html).slice(0, 4000);
+    } catch (err) {
+      console.error("Failed to fetch job URL:", err.message);
+      return res.status(422).json({
+        error: "Couldn't fetch that URL. Please paste the job description as text instead.",
+      });
+    }
+  }
+
+  if (resume.length > 50000 || jobDescription.length > 50000) {
+    return res.status(400).json({ error: "Input too long. Please keep each field under 50,000 characters." });
+  }
+
+  const { score, missing, present, total } = computeAtsScore(resume, jobDescription);
+
+  const id = require("crypto").randomBytes(16).toString("hex");
+
+  stmtAtsInsert.run({
+    id,
+    resume,
+    job_description: jobDescription,
+    score,
+    missing_keywords: JSON.stringify(missing),
+    created_at: Date.now(),
+  });
+
+  res.json({ id, score, missing, present, total });
+});
+
 // Create Stripe Checkout session
 app.post("/create-checkout-session", async (req, res) => {
-  const { resume, jobDescription: jobDescriptionRaw, jobUrl } = req.body;
+  const { atsId } = req.body;
+
+  // If atsId is provided, load resume + job_description from ats_checks
+  let resume = req.body.resume;
+  let jobDescriptionRaw = req.body.jobDescription;
+  let jobUrl = req.body.jobUrl;
+
+  if (atsId) {
+    const atsRow = stmtAtsGet.get(atsId);
+    if (!atsRow) {
+      return res.status(404).json({ error: "ATS check not found or expired." });
+    }
+    resume = atsRow.resume;
+    jobDescriptionRaw = atsRow.job_description;
+    jobUrl = null; // already resolved
+  }
 
   if (!resume || (!jobDescriptionRaw && !jobUrl)) {
     return res.status(400).json({ error: "Resume and job description (or URL) are required." });
@@ -229,6 +458,7 @@ app.post("/create-checkout-session", async (req, res) => {
       email: null,
       paid: 0,
       result: null,
+      ats_id: atsId || null,
       created_at: Date.now(),
     });
 
