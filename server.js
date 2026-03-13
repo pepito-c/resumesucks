@@ -212,7 +212,7 @@ app.post("/create-checkout-session", async (req, res) => {
               name: "Resume Roast & Rewrite",
               description: "AI-powered brutal resume review + professional rewrite",
             },
-            unit_amount: 1200,
+            unit_amount: 900,
           },
           quantity: 1,
         },
