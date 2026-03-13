@@ -231,7 +231,29 @@ function computeAtsScore(resume, jobDescription) {
   // Build unigram keywords (appear at least once, not stopwords)
   const unigrams = Object.keys(wordFreq);
 
-  // Extract 2-gram and 3-gram phrases that appear at least twice in the JD
+  // Known tech/career phrases — always treated as a unit even if mentioned once
+  const KNOWN_PHRASES = new Set([
+    "system design","distributed systems","machine learning","deep learning",
+    "natural language processing","computer vision","data structures","algorithms",
+    "ci/cd","ci cd","continuous integration","continuous deployment","continuous delivery",
+    "test driven development","agile methodology","scrum master","product roadmap",
+    "go to market","product led growth","churn reduction","customer success",
+    "demand generation","pipeline attribution","marketing qualified lead","sales qualified lead",
+    "a/b testing","unit testing","integration testing","end to end testing",
+    "microservices architecture","service oriented","event driven","domain driven",
+    "cross functional","stakeholder management","executive communication",
+    "p&l responsibility","revenue growth","cost reduction","operational efficiency",
+    "full stack","front end","back end","devops","mlops","data pipeline",
+    "cloud infrastructure","kubernetes","docker","terraform","infrastructure as code",
+    "rest api","graphql","api design","system architecture","technical leadership",
+    "engineering manager","product manager","data scientist","data engineer",
+    "on call","incident response","site reliability","performance optimization",
+    "brand awareness","content strategy","social media","email marketing",
+    "search engine optimization","pay per click","conversion rate","customer acquisition",
+    "project management","change management","people management","team building",
+  ]);
+
+  // Extract 2-gram and 3-gram phrases
   const jdLower = jobDescription.toLowerCase().replace(/[^a-z0-9\s+#./-]/g, " ");
   const jdWords = jdLower.split(/\s+/)
     .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
@@ -252,9 +274,9 @@ function computeAtsScore(resume, jobDescription) {
     }
   }
 
-  // Collect multi-word phrases that appear 2+ times (higher signal)
+  // Collect multi-word phrases: appear 2+ times OR are in the known list (1+ times)
   const multiPhrases = Object.entries(phraseFreq)
-    .filter(([, freq]) => freq >= 2)
+    .filter(([phrase, freq]) => freq >= 2 || KNOWN_PHRASES.has(phrase))
     .map(([phrase]) => phrase);
 
   // Deduplicate: prefer multi-word phrases, drop constituent unigrams they cover
