@@ -150,6 +150,64 @@
       font-size: 0.8rem;
     }
 
+    /* What you get feature grid */
+    .features-section {
+      margin-bottom: 48px;
+    }
+
+    .features-section h2 {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .feature-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .feature-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+
+    .feature-card .feature-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .feature-card .feature-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-top: 6px;
+    }
+
+    .feature-card .feature-desc {
+      font-size: 0.82rem;
+      color: #666;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 640px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card:last-child:nth-child(odd) { grid-column: auto; }
+    }
+
     /* Sample roast section */
     .sample-section {
       margin-top: 64px;
@@ -307,6 +365,35 @@
       margin-bottom: 7px;
     }
 
+    .sample-content .ats-title {
+      color: #ff9500;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 28px 0 4px;
+    }
+
+    .sample-content .ats-subtitle-sm {
+      color: #a07030;
+      font-size: 0.8rem;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .sample-content .ats-block {
+      background: #1a1200;
+      border: 1px solid #4a3000;
+      border-left: 3px solid #ff9500;
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      margin-top: 8px;
+    }
+
+    .sample-content .ats-block p { color: #e8c580; }
+    .sample-content .ats-block li { color: #e8c580; margin-bottom: 7px; }
+    .sample-content .ats-block strong { color: #ffb84d; }
+
     .sample-content .rewrite-block {
       background: #111;
       border-left: 3px solid #ff4d4d;
@@ -435,12 +522,43 @@
 <body>
   <div class="container">
     <header>
-      <h1>Your Resume <span>Sucks.</span><br>Let Us Prove It.</h1>
+      <h1>Your Resume Is Getting <span>Filtered</span><br>Before Humans See It</h1>
       <p class="subheadline">
-        Paste your resume + job description. We'll roast it, fix it, and send you back something that actually gets interviews. <strong>$12 one-time.</strong>
+        AI-powered resume analysis that goes beyond a generic critique — ATS keyword scoring, a full rewrite, and your AI-proof case. <strong>$12.</strong>
       </p>
-      <p class="ai-proof-callout">🤖 Includes your <strong>AI-Proof Case</strong> — why you're harder to replace than the average candidate</p>
+      <p class="ai-proof-callout">📋 <strong>5 sections:</strong> Roast · Rewrite · Wins · AI-Proof Case · ATS Score</p>
     </header>
+
+    <section class="features-section" aria-label="What you get">
+      <h2>What You Get</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🔥</span>
+          <span class="feature-title">Brutal Roast</span>
+          <span class="feature-desc">6 specific reasons your resume is getting ignored — named, called out, no mercy.</span>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">✏️</span>
+          <span class="feature-title">Full Rewrite</span>
+          <span class="feature-desc">Your resume, rewritten for this exact job. Every bullet sharpened. Every weak verb replaced.</span>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🏆</span>
+          <span class="feature-title">What's Working</span>
+          <span class="feature-desc">3 real strengths to keep and amplify — not fake positivity, actual signal worth keeping.</span>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🤖</span>
+          <span class="feature-title">AI-Proof Case</span>
+          <span class="feature-desc">Why you're harder to replace than AI for this role — specific to your experience and the job.</span>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <span class="feature-title">ATS Score</span>
+          <span class="feature-desc">The exact keywords you're missing that filters are killing you on — with suggested rewrites.</span>
+        </div>
+      </div>
+    </section>
 
     <form id="roastForm">
       <div class="form-grid">
@@ -541,6 +659,39 @@ SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
             <li><strong>Ambiguous tradeoffs are your actual job.</strong> "Do we ship this half-baked feature to close the Q3 deal or hold it for quality?" That judgment call isn't a search query. It requires knowing the customer, the team's capacity, the CEO's risk tolerance, and the competitive window — all at once. You've made those calls. An AI hasn't lived the consequences.</li>
           </ul>
         </div>
+
+        <hr class="divider">
+
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p><strong>ATS Match Score: 58%</strong> — You're getting through about half the time. The job posting is loaded with terms your resume doesn't mention once.</p>
+          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"OKRs" — appears 3 times in the JD. Your resume never mentions it. Every PM at a Series B SaaS is expected to live in OKRs.</li>
+            <li>"product-led growth" — this is the entire go-to-market motion of the company. Your resume has zero PLG signal.</li>
+            <li>"churn reduction" — you cut cart abandonment but never used this phrase. The ATS won't connect the dots.</li>
+            <li>"NPS" / "Net Promoter Score" — standard PM metric. Not mentioned anywhere.</li>
+            <li>"go-to-market" — appears in the JD multiple times. Your resume is silent on GTM involvement.</li>
+            <li>"A/B testing" — every modern PM role expects this. Your rewrite mentions it once; the original doesn't.</li>
+            <li>"stakeholder alignment" — you did this, but the exact phrase is absent.</li>
+            <li>"customer discovery" / "user research" — the JD calls this out explicitly. No mention on your resume.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"roadmap" ✓</li>
+            <li>"cross-functional" ✓</li>
+            <li>"onboarding" ✓</li>
+            <li>"SaaS" ✓</li>
+            <li>"Mixpanel" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Add to summary: "Drove product-led growth initiatives that reduced churn 18% and improved NPS by 12 points."</li>
+            <li>Add to job bullets: "Defined and tracked quarterly OKRs across 3 eng squads; reported weekly progress to executive team."</li>
+            <li>Add new bullet: "Led go-to-market coordination for 2 major feature launches; partnered with Sales and CS to drive adoption and reduce time-to-value."</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Accordion item 2: Jordan Lee -->
@@ -604,6 +755,39 @@ SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
             <li><strong>Incident response is a human sport.</strong> When the service goes down at 2am and the CTO is awake, they want you on the call — not because you can type faster than an AI, but because you know the system's history, can make the call to rollback vs. hotfix, and can communicate status to a panicking sales team simultaneously. That situational judgment is earned, not prompted.</li>
           </ul>
         </div>
+
+        <hr class="divider">
+
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p><strong>ATS Match Score: 51%</strong> — Just over half. The JD is dense with infrastructure and architecture terms that your resume never touches, even though you've almost certainly done this work.</p>
+          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"distributed systems" — mentioned 4 times in the JD. Your resume says "microservices" in the rewrite but not the original. The ATS is scanning for the exact phrase.</li>
+            <li>"microservices" — same issue. You led a migration to microservices but the word appears only once and buried in a bullet.</li>
+            <li>"CI/CD" — you rebuilt the pipeline, but "CI/CD" as a keyword doesn't appear anywhere in the original resume.</li>
+            <li>"system design" — the JD explicitly asks for system design experience. Your resume has no mention.</li>
+            <li>"on-call" — every startup SWE role includes this. If you've been on-call, say so.</li>
+            <li>"Kubernetes" / "container orchestration" — increasingly standard in JDs at this level. Not mentioned.</li>
+            <li>"code review" — soft signal the ATS often catches. Not present.</li>
+            <li>"SLO" / "SLA" / "uptime" — reliability language that matches the JD's focus on production systems.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"Go" / "Golang" ✓</li>
+            <li>"Python" ✓</li>
+            <li>"Docker" ✓</li>
+            <li>"GitHub Actions" ✓</li>
+            <li>"latency" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Add to summary: "5 years designing and operating distributed systems in Go and Python at scale."</li>
+            <li>Rewrite migration bullet: "Led monolith-to-microservices migration with CI/CD automation via GitHub Actions; zero-downtime rollout across 4 services."</li>
+            <li>Add new bullet: "Participated in on-call rotation; drove system design reviews for new services to reduce incident rate 35% over 6 months."</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Accordion item 3: Sam Rivera -->
@@ -665,6 +849,39 @@ HEAD OF MARKETING — BrandCo (2023–present)
             <li><strong>You own the brand voice in a way no prompt can replicate.</strong> After seven years of shaping how this company sounds — what words they avoid, which narratives resonate with their specific buyer, which tone falls flat in enterprise vs. SMB — that institutional voice lives in your head. Handing it to an AI means starting from zero. Keeping you means preserving it.</li>
             <li><strong>Exec trust for sensitive campaigns is not transferable.</strong> When the CEO wants to respond to a public controversy or reposition the company mid-fundraise, they're not spinning up a new vendor. They call the person they trust to get it right under pressure without embarrassing anyone. You've earned that seat. An AI hasn't been in the room when things went sideways.</li>
             <li><strong>Influencer and media relationships require ongoing human presence.</strong> The best brand partnerships come from relationships cultivated over years — lunches, event appearances, genuine reciprocity. Those contacts respond to you. They don't respond to an AI-generated cold outreach on behalf of whoever just got hired. That network is a competitive moat no LLM can build for a new hire in year one.</li>
+          </ul>
+        </div>
+
+        <hr class="divider">
+
+        <p class="ats-title">📊 ATS Keyword Analysis</p>
+        <p class="ats-subtitle-sm">Why the algorithm might be ghosting you</p>
+        <div class="ats-block">
+          <p><strong>ATS Match Score: 44%</strong> — Well under half. This is a demand gen-heavy role and your resume reads like a brand/comms resume. The ATS is looking for revenue-tied language you're not using.</p>
+          <p style="margin-top:12px"><strong>Missing Keywords (these are killing your score):</strong></p>
+          <ul>
+            <li>"demand generation" — the most critical term for this role. Appears 5 times in the JD. Zero times on your resume.</li>
+            <li>"MQL" (Marketing Qualified Lead) — standard demand gen metric. Not mentioned anywhere.</li>
+            <li>"pipeline attribution" — you built an attribution model but never used this phrase.</li>
+            <li>"CAC" (Customer Acquisition Cost) — you cut it 38% but didn't write "CAC" on your resume. The ATS won't connect "$310 to $192" to this keyword.</li>
+            <li>"marketing qualified lead" — same as MQL, but written out. Some ATS systems scan for both.</li>
+            <li>"HubSpot" — you used it. It's not on the original resume.</li>
+            <li>"ABM" (Account-Based Marketing) — you ran an ABM campaign. The acronym doesn't appear.</li>
+            <li>"funnel optimization" — heavily implied by your work but the exact phrase is absent.</li>
+          </ul>
+          <p style="margin-top:12px"><strong>Keywords Already Present (keep these):</strong></p>
+          <ul>
+            <li>"pipeline" ✓</li>
+            <li>"paid acquisition" ✓</li>
+            <li>"content" ✓</li>
+            <li>"attribution" ✓</li>
+            <li>"B2B" ✓</li>
+          </ul>
+          <p style="margin-top:12px"><strong>3 sentences to add or rewrite:</strong></p>
+          <ul>
+            <li>Update summary: "Demand generation leader with 7 years driving MQL volume and pipeline for B2B and DTC brands."</li>
+            <li>Rewrite attribution bullet: "Built multi-touch pipeline attribution model in HubSpot + Segment; gave exec team first-ever view of CAC by channel and MQL-to-close conversion rates."</li>
+            <li>Add new bullet: "Reduced CAC 38% through funnel optimization and demand generation mix rebalancing — cut spend on low-converting channels, reinvested in ABM."</li>
           </ul>
         </div>
       </div>

@@ -144,6 +144,38 @@
       margin: 32px 0;
     }
 
+    /* ATS Keyword Analysis section gets an orange/amber accent */
+    .result .ats-section {
+      background: #1a1200;
+      border: 1px solid #4a3000;
+      border-left: 4px solid #ff9500;
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-top: 40px;
+    }
+
+    .result .ats-section .ats-header {
+      color: #ff9500;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .result .ats-section .ats-subtitle {
+      color: #a07030;
+      font-size: 0.88rem;
+      margin-bottom: 18px;
+      font-style: italic;
+    }
+
+    .result .ats-section strong {
+      color: #ffb84d;
+    }
+
+    .result .ats-section li {
+      color: #e8c580;
+    }
+
     /* Error state */
     .error {
       display: none;
@@ -211,24 +243,65 @@
     const pollStatus = document.getElementById("pollStatus");
 
     function renderResult(text) {
-      // Split out the AI-Proof section if present, render it specially
+      // Split out ATS section first (section 5), then AI-Proof (section 4)
+      const atsRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?/i;
       const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
-      const splitIdx = text.search(aiProofRegex);
-      if (splitIdx !== -1) {
-        const mainPart = text.slice(0, splitIdx);
-        const aiPart   = text.slice(splitIdx);
-        // Strip the header from aiPart content for custom rendering
+
+      const atsIdx     = text.search(atsRegex);
+      const aiProofIdx = text.search(aiProofRegex);
+
+      let mainPart, aiPart, atsPart;
+
+      if (atsIdx !== -1) {
+        mainPart = text.slice(0, Math.min(aiProofIdx !== -1 ? aiProofIdx : atsIdx, atsIdx !== -1 ? atsIdx : Infinity));
+        if (aiProofIdx !== -1 && aiProofIdx < atsIdx) {
+          // AI-Proof comes before ATS
+          mainPart = text.slice(0, aiProofIdx);
+          aiPart   = text.slice(aiProofIdx, atsIdx);
+          atsPart  = text.slice(atsIdx);
+        } else if (aiProofIdx !== -1) {
+          // ATS comes before AI-Proof (unusual but handle it)
+          mainPart = text.slice(0, atsIdx);
+          atsPart  = text.slice(atsIdx, aiProofIdx);
+          aiPart   = text.slice(aiProofIdx);
+        } else {
+          mainPart = text.slice(0, atsIdx);
+          atsPart  = text.slice(atsIdx);
+          aiPart   = null;
+        }
+      } else if (aiProofIdx !== -1) {
+        mainPart = text.slice(0, aiProofIdx);
+        aiPart   = text.slice(aiProofIdx);
+        atsPart  = null;
+      } else {
+        return markdownToHtml(text);
+      }
+
+      let html = markdownToHtml(mainPart);
+
+      if (aiPart) {
         const aiContent = aiPart
           .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
           .trim();
-        return markdownToHtml(mainPart) +
-          `<div class="ai-proof-section">
+        html += `<div class="ai-proof-section">
             <div class="ai-proof-header">🤖 Your AI-Proof Case</div>
             <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
             ${markdownToHtml(aiContent)}
           </div>`;
       }
-      return markdownToHtml(text);
+
+      if (atsPart) {
+        const atsContent = atsPart
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?\s*/i, "")
+          .trim();
+        html += `<div class="ats-section">
+            <div class="ats-header">📊 ATS Keyword Analysis</div>
+            <div class="ats-subtitle">Why the algorithm might be ghosting you</div>
+            ${markdownToHtml(atsContent)}
+          </div>`;
+      }
+
+      return html;
     }
 
     function markdownToHtml(text) {
