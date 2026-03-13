@@ -145,12 +145,56 @@ app.post(
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// ─── HTML stripping helper ────────────────────────────────────────────────────
+function stripHtml(html) {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 // Create Stripe Checkout session
 app.post("/create-checkout-session", async (req, res) => {
-  const { resume, jobDescription } = req.body;
+  const { resume, jobDescription: jobDescriptionRaw, jobUrl } = req.body;
 
-  if (!resume || !jobDescription) {
-    return res.status(400).json({ error: "Resume and job description are required." });
+  if (!resume || (!jobDescriptionRaw && !jobUrl)) {
+    return res.status(400).json({ error: "Resume and job description (or URL) are required." });
+  }
+
+  let jobDescription = jobDescriptionRaw || "";
+
+  // If a URL was provided instead of pasted text, fetch and extract it
+  if (jobUrl) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      let fetchRes;
+      try {
+        fetchRes = await fetch(jobUrl, {
+          signal: controller.signal,
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; ResumeSucks/1.0)" },
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+      if (!fetchRes.ok) throw new Error(`HTTP ${fetchRes.status}`);
+      const html = await fetchRes.text();
+      const text = stripHtml(html);
+      jobDescription = text.slice(0, 4000);
+    } catch (err) {
+      console.error("Failed to fetch job URL:", err.message);
+      return res.status(422).json({
+        error: "Couldn't fetch that URL. Please paste the job description as text instead.",
+      });
+    }
   }
 
   if (resume.length > 50000 || jobDescription.length > 50000) {

@@ -274,6 +274,63 @@
       white-space: pre-wrap;
     }
 
+    /* Input mode toggle */
+    .input-mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-top: 8px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #333;
+      width: fit-content;
+    }
+
+    .mode-btn {
+      background: transparent;
+      color: #888;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-btn:first-child { border-right: 1px solid #333; }
+
+    .mode-btn.active {
+      background: #ff4d4d;
+      color: #fff;
+    }
+
+    .mode-btn:not(.active):hover {
+      background: #2a2a2a;
+      color: #ccc;
+    }
+
+    .url-input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+      height: 52px;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: #ff4d4d;
+    }
+
+    .url-input::placeholder { color: #555; }
+
     @media (max-width: 640px) {
       .form-grid { grid-template-columns: 1fr; }
       h1 { font-size: 2rem; }
@@ -298,7 +355,12 @@
         </div>
         <div class="field">
           <label for="jobDescription">Target Job Description</label>
-          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." required></textarea>
+          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..."></textarea>
+          <input type="url" id="jobUrl" class="url-input" placeholder="https://jobs.lever.co/company/job-id" style="display:none; margin-top:8px;">
+          <div class="input-mode-toggle" style="margin-top:8px;">
+            <button type="button" class="mode-btn active" id="modeText">Paste text</button>
+            <button type="button" class="mode-btn" id="modeUrl">Paste URL</button>
+          </div>
         </div>
       </div>
 
@@ -480,6 +542,28 @@ HEAD OF MARKETING — BrandCo (2023–present)
       });
     });
 
+    // Input mode toggle
+    const modeTextBtn = document.getElementById("modeText");
+    const modeUrlBtn  = document.getElementById("modeUrl");
+    const jobDescTA   = document.getElementById("jobDescription");
+    const jobUrlInput = document.getElementById("jobUrl");
+
+    modeTextBtn.addEventListener("click", () => {
+      modeTextBtn.classList.add("active");
+      modeUrlBtn.classList.remove("active");
+      jobDescTA.style.display = "";
+      jobUrlInput.style.display = "none";
+      jobUrlInput.value = "";
+    });
+
+    modeUrlBtn.addEventListener("click", () => {
+      modeUrlBtn.classList.add("active");
+      modeTextBtn.classList.remove("active");
+      jobDescTA.style.display = "none";
+      jobUrlInput.style.display = "";
+      jobDescTA.value = "";
+    });
+
     // Roast form
     const form = document.getElementById("roastForm");
     const btn = document.getElementById("ctaBtn");
@@ -490,21 +574,30 @@ HEAD OF MARKETING — BrandCo (2023–present)
       errorMsg.textContent = "";
 
       const resume = document.getElementById("resume").value.trim();
-      const jobDescription = document.getElementById("jobDescription").value.trim();
+      const isUrlMode = modeUrlBtn.classList.contains("active");
+      const jobDescription = isUrlMode ? "" : jobDescTA.value.trim();
+      const jobUrl = isUrlMode ? jobUrlInput.value.trim() : "";
 
-      if (!resume || !jobDescription) {
+      if (!resume || (!jobDescription && !jobUrl)) {
         errorMsg.textContent = "Both fields are required.";
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = "Redirecting to payment...";
+      btn.textContent = isUrlMode ? "Fetching job posting..." : "Redirecting to payment...";
 
       try {
+        const payload = { resume };
+        if (isUrlMode) {
+          payload.jobUrl = jobUrl;
+        } else {
+          payload.jobDescription = jobDescription;
+        }
+
         const res = await fetch("/create-checkout-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ resume, jobDescription }),
+          body: JSON.stringify(payload),
         });
 
         const data = await res.json();
