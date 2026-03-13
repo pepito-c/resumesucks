@@ -336,6 +336,57 @@
       h1 { font-size: 2rem; }
       textarea { height: 220px; }
     }
+
+    /* PDF drop zone */
+    .pdf-drop-zone {
+      position: relative;
+      border-radius: 8px;
+      transition: box-shadow 0.2s;
+    }
+
+    .pdf-drop-zone.drag-over textarea {
+      border-color: #ff4d4d;
+      box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.25);
+    }
+
+    .pdf-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .pdf-hint-text {
+      font-size: 0.75rem;
+      color: #555;
+    }
+
+    .pdf-upload-btn {
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 5px;
+      color: #777;
+      font-size: 0.75rem;
+      font-family: inherit;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .pdf-upload-btn:hover {
+      border-color: #ff4d4d;
+      color: #e0e0e0;
+    }
+
+    .pdf-inline-error {
+      color: #ff4d4d;
+      font-size: 0.78rem;
+      margin-top: 5px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -351,7 +402,15 @@
       <div class="form-grid">
         <div class="field">
           <label for="resume">Your Resume</label>
-          <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." required></textarea>
+          <div class="pdf-drop-zone" id="resumeDropZone">
+            <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." required></textarea>
+          </div>
+          <div class="pdf-hint">
+            <span class="pdf-hint-text">Paste your resume or drag &amp; drop a PDF</span>
+            <button type="button" class="pdf-upload-btn" id="pdfUploadBtn">📎 Upload PDF</button>
+          </div>
+          <p class="pdf-inline-error" id="pdfError"></p>
+          <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
         </div>
         <div class="field">
           <label for="jobDescription">Target Job Description</label>
@@ -531,7 +590,97 @@ HEAD OF MARKETING — BrandCo (2023–present)
 
   <footer>&copy; 2026 ResumeSucks.com &mdash; Powered by AI. No refunds on hurt feelings.</footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
+    // PDF.js worker
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    // PDF text extraction
+    async function extractPdfText(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pageTexts = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items.map((item) => item.str).join(' ');
+        pageTexts.push(pageText);
+      }
+      // Join pages, collapse excessive whitespace
+      return pageTexts
+        .join('\n')
+        .replace(/[ \t]{3,}/g, '  ')
+        .replace(/\n{4,}/g, '\n\n')
+        .trim();
+    }
+
+    async function handlePdfFile(file) {
+      const resumeTA  = document.getElementById('resume');
+      const pdfError  = document.getElementById('pdfError');
+      const dropZone  = document.getElementById('resumeDropZone');
+
+      if (!file || file.type !== 'application/pdf') {
+        pdfError.textContent = "Couldn't read that PDF. Please paste your resume as text.";
+        pdfError.style.display = 'block';
+        return;
+      }
+
+      pdfError.style.display = 'none';
+      const prevPlaceholder = resumeTA.placeholder;
+      resumeTA.placeholder = 'Extracting text from PDF…';
+      resumeTA.value = '';
+      resumeTA.disabled = true;
+
+      try {
+        const text = await extractPdfText(file);
+        resumeTA.value = text;
+      } catch (err) {
+        pdfError.textContent = "Couldn't read that PDF. Please paste your resume as text.";
+        pdfError.style.display = 'block';
+      } finally {
+        resumeTA.disabled = false;
+        resumeTA.placeholder = prevPlaceholder;
+      }
+    }
+
+    // Drag-and-drop
+    const dropZone = document.getElementById('resumeDropZone');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      handlePdfFile(file);
+    });
+
+    // File picker button
+    const pdfUploadBtn  = document.getElementById('pdfUploadBtn');
+    const pdfFileInput  = document.getElementById('pdfFileInput');
+
+    pdfUploadBtn.addEventListener('click', () => pdfFileInput.click());
+
+    pdfFileInput.addEventListener('change', () => {
+      const file = pdfFileInput.files[0];
+      if (file) handlePdfFile(file);
+      pdfFileInput.value = ''; // reset so same file can be re-selected
+    });
+
     // Sample roast accordion — handles multiple toggles generically
     document.querySelectorAll(".sample-toggle").forEach((toggle) => {
       toggle.addEventListener("click", () => {
