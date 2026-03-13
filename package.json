@@ -1,0 +1,18 @@
+{
+  "name": "resumesucks",
+  "version": "1.0.0",
+  "description": "ResumeSucks.com – AI-powered brutal resume review and rewrite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.0",
+    "resend": "^6.9.3",
+    "stripe": "^17.4.0"
+  }
+}

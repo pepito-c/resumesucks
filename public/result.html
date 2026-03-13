@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Roast Is Ready – ResumeSucks.com</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f0f0f;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 60px 24px 40px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    h1 span { color: #ff4d4d; }
+
+    .subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 40px;
+      font-size: 1rem;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #333;
+      border-top-color: #ff4d4d;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p {
+      color: #999;
+      font-size: 1.1rem;
+    }
+
+    .loading .subtext {
+      color: #555;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .loading .poll-status {
+      color: #666;
+      font-size: 0.8rem;
+      margin-top: 16px;
+      font-style: italic;
+    }
+
+    /* Result content */
+    .result {
+      display: none;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 40px;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .result h2, .result strong {
+      color: #ff4d4d;
+    }
+
+    .result h2 {
+      font-size: 1.4rem;
+      margin: 32px 0 16px;
+    }
+
+    .result h2:first-child { margin-top: 0; }
+
+    .result p { margin-bottom: 12px; }
+
+    .result ul, .result ol {
+      margin: 0 0 16px 24px;
+    }
+
+    .result li { margin-bottom: 8px; }
+
+    .result hr {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 32px 0;
+    }
+
+    /* Error state */
+    .error {
+      display: none;
+      text-align: center;
+      padding: 60px 0;
+    }
+
+    .error p {
+      color: #ff4d4d;
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #ff4d4d;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 32px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: #e63939; }
+
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: #444;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your <span>Roast</span> Is Ready</h1>
+    <p class="subtitle">Here's what our AI career coach thinks of your resume.</p>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Roasting your resume...</p>
+      <p class="subtext">This takes 15–30 seconds. We're being thorough.</p>
+      <p class="poll-status" id="pollStatus"></p>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="error" id="error">
+      <p id="errorMsg">Something went wrong.</p>
+      <a href="/" class="btn">Try Again</a>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 ResumeSucks.com &mdash; Powered by AI. No refunds on hurt feelings.</footer>
+
+  <script>
+    const loadingEl  = document.getElementById("loading");
+    const resultEl   = document.getElementById("result");
+    const errorEl    = document.getElementById("error");
+    const errorMsg   = document.getElementById("errorMsg");
+    const pollStatus = document.getElementById("pollStatus");
+
+    function markdownToHtml(text) {
+      return text
+        // Bold
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        // Italic
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        // H2 headers
+        .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+        // H3 headers
+        .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+        // Numbered list items
+        .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
+        // Bullet list items
+        .replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>")
+        // Wrap consecutive <li> in <ul>
+        .replace(/((?:<li>.*<\/li>\n?)+)/g, "<ul>$1</ul>")
+        // Horizontal rules
+        .replace(/^---$/gm, "<hr>")
+        // Paragraphs (double newlines)
+        .replace(/\n\n/g, "</p><p>")
+        // Single newlines within blocks
+        .replace(/\n/g, "<br>")
+        // Wrap in paragraph
+        .replace(/^/, "<p>")
+        .replace(/$/, "</p>")
+        // Clean up empty paragraphs
+        .replace(/<p>\s*<\/p>/g, "");
+    }
+
+    function showError(msg) {
+      loadingEl.style.display = "none";
+      errorMsg.textContent = msg;
+      errorEl.style.display = "block";
+    }
+
+    async function pollResult() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+
+      if (!sessionId) {
+        showError("No session ID found. Please start over.");
+        return;
+      }
+
+      const MAX_ATTEMPTS = 20;   // 20 × 3s = 60 seconds
+      const INTERVAL_MS  = 3000;
+      let attempts = 0;
+
+      async function attempt() {
+        attempts++;
+        pollStatus.textContent = `Checking… (${attempts}/${MAX_ATTEMPTS})`;
+
+        try {
+          const res  = await fetch(`/api/result?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || "Failed to load results.");
+          }
+
+          if (data.status === "ready") {
+            loadingEl.style.display = "none";
+            resultEl.innerHTML = markdownToHtml(data.result);
+            resultEl.style.display = "block";
+            return;
+          }
+
+          // Still generating — keep polling if under limit
+          if (attempts < MAX_ATTEMPTS) {
+            setTimeout(attempt, INTERVAL_MS);
+          } else {
+            showError("Your roast is taking longer than expected. Please refresh the page to check again.");
+          }
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      attempt();
+    }
+
+    pollResult();
+  </script>
+</body>
+</html>

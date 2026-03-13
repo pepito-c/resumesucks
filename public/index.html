@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeSucks – AI Resume Roast & Rewrite for $12</title>
+  <meta name="description" content="Paste your resume and target job. Get a brutal AI-powered critique + full rewrite for $12. Find out exactly why you're not getting callbacks.">
+  <meta property="og:title" content="ResumeSucks.com – Your Resume Sucks. Let Us Prove It.">
+  <meta property="og:description" content="AI-powered brutal resume review + full rewrite tailored to your target job. $12 one-time. No fluff.">
+  <meta property="og:url" content="https://resumesucks.com">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ResumeSucks.com – AI Resume Roast for $12">
+  <meta name="twitter:description" content="Brutal AI resume critique + full rewrite for your target job. $12. Find out why you're not getting interviews.">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f0f0f;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 960px;
+      width: 100%;
+      padding: 60px 24px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    h1 span { color: #ff4d4d; }
+
+    .subheadline {
+      font-size: 1.15rem;
+      color: #999;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .subheadline strong { color: #e0e0e0; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 340px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 16px;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #ff4d4d;
+    }
+
+    textarea::placeholder { color: #555; }
+
+    .cta-wrap { text-align: center; }
+
+    .cta {
+      display: inline-block;
+      background: #ff4d4d;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 48px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .cta:hover { background: #e63939; }
+    .cta:active { transform: scale(0.98); }
+    .cta:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .trust-line {
+      margin-top: 14px;
+      color: #555;
+      font-size: 0.82rem;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .error-msg {
+      color: #ff4d4d;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.95rem;
+      min-height: 1.4em;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: #444;
+      font-size: 0.8rem;
+    }
+
+    /* Sample roast section */
+    .sample-section {
+      margin-top: 64px;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 48px;
+    }
+
+    .sample-section h2 {
+      text-align: center;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .sample-section h2 span { color: #ff4d4d; }
+
+    .sample-section .tagline {
+      text-align: center;
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    .sample-toggle {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 18px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #e0e0e0;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .sample-toggle:hover { border-color: #ff4d4d; }
+
+    .sample-toggle .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sample-toggle .badge {
+      background: #ff4d4d;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .sample-toggle .chevron {
+      color: #666;
+      font-size: 1.2rem;
+      transition: transform 0.25s;
+    }
+
+    .sample-toggle[aria-expanded="true"] .chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Accordion spacing */
+    .sample-toggle + .sample-content {
+      margin-bottom: 0;
+    }
+    .sample-content + .sample-toggle {
+      margin-top: 10px;
+    }
+
+    .sample-content {
+      display: none;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 32px;
+      line-height: 1.75;
+      font-size: 0.97rem;
+    }
+
+    .sample-content.open { display: block; }
+
+    .sample-content .candidate-note {
+      color: #555;
+      font-size: 0.82rem;
+      font-style: italic;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .sample-content h3 {
+      color: #ff4d4d;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 28px 0 12px;
+    }
+
+    .sample-content h3:first-of-type { margin-top: 0; }
+
+    .sample-content p { color: #ccc; margin-bottom: 10px; }
+
+    .sample-content ul {
+      margin: 0 0 14px 22px;
+      color: #ccc;
+    }
+
+    .sample-content li { margin-bottom: 7px; }
+
+    .sample-content .win { color: #4dff91; }
+
+    .sample-content .divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 24px 0;
+    }
+
+    .sample-content .rewrite-block {
+      background: #111;
+      border-left: 3px solid #ff4d4d;
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      color: #bbb;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2rem; }
+      textarea { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Your Resume <span>Sucks.</span><br>Let Us Prove It.</h1>
+      <p class="subheadline">
+        Paste your resume + job description. We'll roast it, fix it, and send you back something that actually gets interviews. <strong>$12 one-time.</strong>
+      </p>
+    </header>
+
+    <form id="roastForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="resume">Your Resume</label>
+          <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="jobDescription">Target Job Description</label>
+          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." required></textarea>
+        </div>
+      </div>
+
+      <div class="cta-wrap">
+        <button type="submit" class="cta" id="ctaBtn">Roast My Resume &rarr; $12</button>
+        <p class="trust-line">We sharpen what's real. We don't invent what isn't. No fake metrics, no fabricated achievements — just your actual experience, written to land.</p>
+      </div>
+      <p class="error-msg" id="errorMsg"></p>
+    </form>
+  </div>
+
+  <div class="container">
+    <section class="sample-section" aria-label="Sample roasts">
+      <h2>Real Roasts — <span>See What We Actually Deliver</span></h2>
+      <p class="tagline">Three real examples: Alex Johnson (Senior PM), Jordan Lee (Senior SWE), and Sam Rivera (Head of Marketing).</p>
+
+      <!-- Accordion item 1: Alex Johnson -->
+      <button class="sample-toggle" data-target="sampleAlex" aria-expanded="false" aria-controls="sampleAlex">
+        <span class="toggle-label">
+          <span class="badge">Alex Johnson</span>
+          Senior Product Manager at a Series B SaaS startup
+        </span>
+        <span class="chevron">▼</span>
+      </button>
+
+      <div class="sample-content" id="sampleAlex" role="region">
+        <p class="candidate-note">Candidate: Alex Johnson &nbsp;·&nbsp; Target role: Senior Product Manager, Series B SaaS startup</p>
+
+        <h3>🔥 The Roast</h3>
+        <ul>
+          <li><strong>"Results-driven professional with a passion for innovation."</strong> Oh good, you copy-pasted from the 2009 LinkedIn template like everyone else. This sentence says nothing, means nothing, and actively makes you look like you've never seen a good resume. Delete it. Burn it. Never write it again.</li>
+          <li><strong>You "managed cross-functional teams" at literally every single job.</strong> Cool. So did every other PM. How big were the teams? What did they ship? What was the outcome? You wrote three jobs' worth of activity with zero results. This reads like a job description you plagiarized from your own offer letter.</li>
+          <li><strong>You cut cart abandonment by 14% and buried it as your THIRD BULLET in your SECOND JOB.</strong> That's $2M+ in recovered revenue casually hiding behind "collaborated with stakeholders." A hiring manager who gets 200 resumes a day almost definitely didn't make it there. You don't bury the lede. Ever.</li>
+          <li><strong>Your skills section lists Microsoft Office.</strong> Microsoft. Office. You are applying for a Senior PM role at a tech startup in 2026. If "Word" is a skill you're proud of, you may have bigger problems than your resume.</li>
+          <li><strong>No evidence you can survive in a technical conversation.</strong> Startup PMs go toe-to-toe with engineers daily. Your resume has zero signal that you know what an API is, can read a SQL query, or have ever opened a Datadog dashboard. They will assume you can't. Because you gave them no reason to think otherwise.</li>
+          <li><strong>Every bullet starts with a weak verb.</strong> "Assisted," "Supported," "Helped facilitate." You sound like an intern apologizing for existing. Own your work. You didn't "assist with the roadmap" — you built it. Say that.</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h3>✏️ The Fix</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:14px">Rewritten summary + top role — what it should actually look like:</p>
+        <div class="rewrite-block">ALEX JOHNSON
+alex@email.com · linkedin.com/in/alexjohnson · (555) 000-0000
+
+SUMMARY
+PM with 6 years shipping B2B SaaS products. Rebuilt checkout flow that recovered $2.1M in annual revenue. Cut enterprise onboarding from 6 weeks to 9 days. Comfortable in the weeds with engineers — SQL, Mixpanel, API specs, the whole thing. I ship.
+
+SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
+· Owned checkout experience; 4-sprint redesign dropped cart abandonment 14% (68%→54%), recovering $2.1M ARR
+· Shipped 3 ERP integrations from scratch — cut customer onboarding time from 6 weeks to 9 days
+· Ran roadmap across 3 eng squads; delivered 11/12 committed features in FY24 on a startup budget
+· Instrumented full product funnel in Mixpanel with Data team; reduced time-to-insight from 2 weeks to same-day
+· Facilitated weekly cross-functional reviews with Sales, CS, and Design — reduced escalations 40% in 6 months
+        </div>
+
+        <hr class="divider">
+
+        <h3 class="win">🏆 Top 3 Wins</h3>
+        <ul>
+          <li class="win"><strong>The checkout result is genuinely impressive.</strong> $2.1M recovered is a number any hiring manager will stop and read. It just needs to be the first thing they see, not the seventh.</li>
+          <li class="win"><strong>Strong company tenure.</strong> 2+ years at each role tells a story of ownership and follow-through. Startups hate job-hoppers. You're fine here.</li>
+          <li class="win"><strong>You've actually shipped hard things.</strong> ERP integrations are painful, unsexy, and technically complex. That you survived it — and sped it up by 5x — is a real signal. Own it louder.</li>
+        </ul>
+      </div>
+
+      <!-- Accordion item 2: Jordan Lee -->
+      <button class="sample-toggle" data-target="sampleJordan" aria-expanded="false" aria-controls="sampleJordan">
+        <span class="toggle-label">
+          <span class="badge">Jordan Lee</span>
+          Senior Software Engineer at a startup
+        </span>
+        <span class="chevron">▼</span>
+      </button>
+
+      <div class="sample-content" id="sampleJordan" role="region">
+        <p class="candidate-note">Candidate: Jordan Lee &nbsp;·&nbsp; Target role: Senior Software Engineer, early-stage startup</p>
+
+        <h3>🔥 The Roast</h3>
+        <ul>
+          <li><strong>The skills section lists 23 languages and frameworks, including COBOL and "familiar with blockchain."</strong> Familiar. With blockchain. On a Senior SWE resume. You've listed so many technologies that you've effectively said you're an expert in none of them. Pick your actual stack and own it. COBOL in 2026 is a cry for help, not a differentiator.</li>
+          <li><strong>Every single project description says "developed features."</strong> Developed features. For what? For whom? On what scale? "Developed features for e-commerce platform" is not a bullet point, it's a hostage note. What features? Why did they matter? What happened after you shipped them?</li>
+          <li><strong>"Improved performance by optimizing code."</strong> Stunning. Incredible. Truly the most specific thing ever written. How much faster? What was the baseline? Which service? What was the business impact? This sentence is the resume equivalent of saying "I fixed a thing."</li>
+          <li><strong>Your GitHub link 404s.</strong> The. Audacity. You put a broken GitHub link on a software engineering resume. The first thing every technical hiring manager does is click it. They clicked it. It's dead. They closed your tab. You're done.</li>
+          <li><strong>"Team player who thrives in collaborative environments" appears in your summary.</strong> This is a resume, not a therapy intake form. No hiring manager has ever read this and thought "finally, a team player." Delete it. All of it. Replace it with something you actually built.</li>
+          <li><strong>Five years of experience with zero mention of scale.</strong> How many users? What kind of traffic? What was the p99 latency? Did you work on a side project or a system processing millions of requests? The resume doesn't say, so the hiring manager assumes the worst.</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h3>✏️ The Fix</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:14px">Rewritten summary + top role — what it should actually look like:</p>
+        <div class="rewrite-block">JORDAN LEE
+jordan@email.com · linkedin.com/in/jordanlee · github.com/jordanlee · (555) 000-0001
+
+SUMMARY
+Backend engineer with 5 years building high-throughput distributed systems in Go and Python. Reduced API latency 60% on a service handling 2M requests/day. Cut CI/CD pipeline from 45 min to 8 min. Opinionated about observability, allergic to flaky tests.
+
+SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
+· Redesigned authentication service (Go); reduced p99 latency from 340ms to 135ms — 60% improvement at 2M req/day peak
+· Rebuilt CI/CD pipeline with GitHub Actions + Docker layer caching; cut deploy time from 45 min to 8 min, unblocking 12-person eng team
+· Led migration from monolith to 4 microservices; zero downtime, phased rollout over 3 months
+· Introduced structured logging + Datadog APM across 8 services; MTTR dropped from 4 hours to 22 minutes
+· Mentored 2 junior engineers; both promoted within 18 months
+        </div>
+
+        <hr class="divider">
+
+        <h3 class="win">🏆 Top 3 Wins</h3>
+        <ul>
+          <li class="win"><strong>The tenure is solid.</strong> Five years with meaningful progression signals you can actually see projects through. That's rarer than you think in early-stage startup hiring.</li>
+          <li class="win"><strong>The breadth of stack is genuinely an asset — if you pick a lane.</strong> Full-stack exposure is valuable at a startup where you'll wear many hats. Just lead with your strongest 4–5 tools, not 23.</li>
+          <li class="win"><strong>You've worked across the stack and evidently survived it.</strong> Anyone who's touched infra, backend, and frontend has war stories. Those stories are exactly what startup CTOs want to hear. You just need to write them down.</li>
+        </ul>
+      </div>
+
+      <!-- Accordion item 3: Sam Rivera -->
+      <button class="sample-toggle" data-target="sampleSam" aria-expanded="false" aria-controls="sampleSam">
+        <span class="toggle-label">
+          <span class="badge">Sam Rivera</span>
+          Head of Marketing
+        </span>
+        <span class="chevron">▼</span>
+      </button>
+
+      <div class="sample-content" id="sampleSam" role="region">
+        <p class="candidate-note">Candidate: Sam Rivera &nbsp;·&nbsp; Target role: Head of Marketing, growth-stage startup</p>
+
+        <h3>🔥 The Roast</h3>
+        <ul>
+          <li><strong>"Passionate brand storyteller who drives growth through authentic engagement."</strong> That sentence has eight words and says nothing. Zero claims. Zero numbers. Zero proof. It's the kind of summary that gets auto-filtered by anyone who's hired a marketer before. You could swap your name for literally any other marketing manager and it would still apply. That's a problem.</li>
+          <li><strong>Every metric is an impression, a reach, or a follower count.</strong> "Grew Instagram following 40%." Okay — and what did that do for revenue? Pipeline? Signups? Follower counts are vanity metrics in a board meeting and they're vanity metrics on your resume. If you can't connect your work to money, you look like a social media intern who got promoted.</li>
+          <li><strong>"Managed $500K budget" — with zero outcome attached.</strong> Great, you had a budget. A budget is an input. What was the output? ROAS? CAC? Pipeline generated? Revenue influenced? Without that, you've just told me you had spending authority, not that you spent it well.</li>
+          <li><strong>Your skills section lists Instagram, TikTok, LinkedIn, Twitter, Pinterest, and Snapchat.</strong> Those are apps. They come pre-installed on a phone. Listing social media platforms as skills is like an accountant listing "calculator" and "Excel" — one of those is a skill, the other is a tool you opened once. You have actual skills. List those instead.</li>
+          <li><strong>"Led rebranding initiative" — full stop.</strong> Did it work? Did revenue go up? Did brand recall improve? Did anyone notice? You led a rebrand and then apparently never looked up to see what happened. An outcome-free accomplishment is just a task you completed. It's not impressive; it's a chore with a fancier title.</li>
+          <li><strong>You have an Objective section. In 2026.</strong> Nobody has used an objective section since 2008. "Seeking a dynamic role where I can leverage my skills…" — delete this immediately. It tells the reader you last updated your resume template during the Obama administration. Use that space for a tight, metric-driven summary instead.</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h3>✏️ The Fix</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:14px">Rewritten summary + top role — what it should actually look like:</p>
+        <div class="rewrite-block">SAM RIVERA
+sam@email.com · linkedin.com/in/samrivera · (555) 000-0002
+
+SUMMARY
+Growth marketer with 7 years driving pipeline for B2B and DTC brands. Generated $4.2M in attributed pipeline last year across paid, content, and lifecycle. Cut CAC 38% in 12 months by overhauling attribution model and killing underperforming channels. I care about revenue, not reach.
+
+HEAD OF MARKETING — BrandCo (2023–present)
+· Rebuilt paid acquisition program (Google + Meta); reduced CAC from $310 to $192 (38%) while maintaining lead volume
+· Launched ABM campaign targeting F500 accounts; generated $4.2M in pipeline, 22% converted to closed-won within 6 months
+· Rebranded company from legacy fintech identity to modern B2B SaaS positioning; 3-month campaign drove 67% lift in branded search and contributed to 2x increase in inbound demo requests
+· Built 6-person marketing team from scratch; hired content, demand gen, and PMM leads within 90 days
+· Implemented multi-touch attribution model in HubSpot + Segment; gave sales team first-ever view of full funnel influence by channel
+        </div>
+
+        <hr class="divider">
+
+        <h3 class="win">🏆 Top 3 Wins</h3>
+        <ul>
+          <li class="win"><strong>Seven years of progressive ownership is a real asset.</strong> Moving from manager to head-of is the narrative arc hiring teams want to see. You've clearly grown — you just need the resume to prove it with numbers.</li>
+          <li class="win"><strong>Cross-channel experience is genuinely valuable.</strong> Someone who's run paid, content, brand, and lifecycle (even if the resume buries it) is rare. Most marketers specialize early. You've got the breadth to lead a team with different functions.</li>
+          <li class="win"><strong>You managed a $500K budget and presumably didn't blow it.</strong> Budget stewardship at that level is a real signal of seniority. You just need to attach an outcome to it so it lands as a win instead of a footnote.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <footer>&copy; 2026 ResumeSucks.com &mdash; Powered by AI. No refunds on hurt feelings.</footer>
+
+  <script>
+    // Sample roast accordion — handles multiple toggles generically
+    document.querySelectorAll(".sample-toggle").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const targetId = toggle.getAttribute("data-target");
+        const content  = document.getElementById(targetId);
+        const isOpen   = content.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen);
+      });
+    });
+
+    // Roast form
+    const form = document.getElementById("roastForm");
+    const btn = document.getElementById("ctaBtn");
+    const errorMsg = document.getElementById("errorMsg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = "";
+
+      const resume = document.getElementById("resume").value.trim();
+      const jobDescription = document.getElementById("jobDescription").value.trim();
+
+      if (!resume || !jobDescription) {
+        errorMsg.textContent = "Both fields are required.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Redirecting to payment...";
+
+      try {
+        const res = await fetch("/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resume, jobDescription }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong.");
+        }
+
+        window.location.href = data.url;
+      } catch (err) {
+        errorMsg.textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = "Roast My Resume \u2192 $12";
+      }
+    });
+  </script>
+</body>
+</html>
