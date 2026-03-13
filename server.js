@@ -10,6 +10,14 @@ const app = express();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+function getAnthropicClient(email) {
+  const isOwner = email && process.env.OWNER_EMAIL &&
+    email.toLowerCase() === process.env.OWNER_EMAIL.toLowerCase();
+  return isOwner && process.env.ANTHROPIC_API_KEY_OWNER
+    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY_OWNER })
+    : anthropic;
+}
+
 // Resend email client (optional)
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -514,7 +522,8 @@ app.get("/api/result", async (req, res) => {
   // Fire and forget — generate in background
   (async () => {
     try {
-      const message = await anthropic.messages.create({
+      const client = getAnthropicClient(job.email);
+      const message = await client.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
         system:
