@@ -565,41 +565,6 @@ app.get("/api/result", async (req, res) => {
   })();
 });
 
-// ─── Owner test bypass (no Stripe) ───────────────────────────────────────────
-// Hit /dev-roast?secret=YOUR_SECRET with resume + jobDescription in body
-app.post("/dev-roast", express.json(), async (req, res) => {
-  const secret = req.query.secret || req.body.secret;
-  if (!secret || secret !== process.env.DEV_SECRET) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
-  let { resume, jobDescription, jobUrl } = req.body;
-  if (!resume) return res.status(400).json({ error: "resume required" });
-  if (!jobDescription && jobUrl) {
-    try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 5000);
-      const r = await fetch(jobUrl, { signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0" } });
-      const html = await r.text();
-      jobDescription = stripHtml(html).slice(0, 4000);
-    } catch { return res.status(422).json({ error: "Couldn't fetch that URL." }); }
-  }
-  if (!jobDescription) return res.status(400).json({ error: "jobDescription required" });
-  const id = crypto.randomUUID().replace(/-/g, "");
-  stmtInsert.run({ id, resume, job_description: jobDescription, created_at: Date.now(), ats_id: null });
-  stmtUpdate.run({ paid: 1, email: "dev@test.local", id });
-  res.json({ id, resultUrl: `/result.html?session_id=${id}` });
-  // Generate in background
-  (async () => {
-    try {
-      const message = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514", max_tokens: 4096,
-        system: "You are a savage but brilliant career coach...",
-        messages: [{ role: "user", content: `Here is the resume:\n${resume}\n\nHere is the job description:\n${jobDescription}\n\nProvide all 5 sections: 1. ATS KEYWORD ANALYSIS 2. THE ROAST 3. THE FIX 4. TOP 3 WINS 5. YOUR AI-PROOF CASE` }]
-      });
-      stmtResult.run({ result: message.content[0].text, id });
-    } catch (err) { console.error("dev-roast Claude error:", err.message); }
-  })();
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
