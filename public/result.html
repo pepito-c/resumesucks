@@ -98,6 +98,38 @@
 
     .result h2:first-child { margin-top: 0; }
 
+    /* AI-Proof section gets a teal/blue accent */
+    .result .ai-proof-section {
+      background: #0d1f2d;
+      border: 1px solid #1e4a6e;
+      border-left: 4px solid #4d9fff;
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-top: 40px;
+    }
+
+    .result .ai-proof-section .ai-proof-header {
+      color: #4d9fff;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .result .ai-proof-section .ai-proof-subtitle {
+      color: #5a8aaa;
+      font-size: 0.88rem;
+      margin-bottom: 18px;
+      font-style: italic;
+    }
+
+    .result .ai-proof-section strong {
+      color: #7bbfff;
+    }
+
+    .result .ai-proof-section li {
+      color: #b8d8f0;
+    }
+
     .result p { margin-bottom: 12px; }
 
     .result ul, .result ol {
@@ -178,6 +210,27 @@
     const errorMsg   = document.getElementById("errorMsg");
     const pollStatus = document.getElementById("pollStatus");
 
+    function renderResult(text) {
+      // Split out the AI-Proof section if present, render it specially
+      const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
+      const splitIdx = text.search(aiProofRegex);
+      if (splitIdx !== -1) {
+        const mainPart = text.slice(0, splitIdx);
+        const aiPart   = text.slice(splitIdx);
+        // Strip the header from aiPart content for custom rendering
+        const aiContent = aiPart
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
+          .trim();
+        return markdownToHtml(mainPart) +
+          `<div class="ai-proof-section">
+            <div class="ai-proof-header">🤖 Your AI-Proof Case</div>
+            <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
+            ${markdownToHtml(aiContent)}
+          </div>`;
+      }
+      return markdownToHtml(text);
+    }
+
     function markdownToHtml(text) {
       return text
         // Bold
@@ -240,7 +293,7 @@
 
           if (data.status === "ready") {
             loadingEl.style.display = "none";
-            resultEl.innerHTML = markdownToHtml(data.result);
+            resultEl.innerHTML = renderResult(data.result);
             resultEl.style.display = "block";
             return;
           }

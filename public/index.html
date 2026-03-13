@@ -55,6 +55,19 @@
 
     .subheadline strong { color: #e0e0e0; }
 
+    .ai-proof-callout {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: #5a8aaa;
+      background: rgba(77, 159, 255, 0.08);
+      border: 1px solid rgba(77, 159, 255, 0.2);
+      border-radius: 6px;
+      display: inline-block;
+      padding: 6px 14px;
+    }
+
+    .ai-proof-callout strong { color: #4d9fff; }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -264,6 +277,36 @@
       margin: 24px 0;
     }
 
+    .sample-content .ai-proof {
+      background: #0d1f2d;
+      border: 1px solid #1e4a6e;
+      border-left: 3px solid #4d9fff;
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      margin-top: 8px;
+    }
+
+    .sample-content .ai-proof-title {
+      color: #4d9fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 28px 0 4px;
+    }
+
+    .sample-content .ai-proof-subtitle-sm {
+      color: #5a8aaa;
+      font-size: 0.8rem;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .sample-content .ai-proof li {
+      color: #b8d8f0;
+      margin-bottom: 7px;
+    }
+
     .sample-content .rewrite-block {
       background: #111;
       border-left: 3px solid #ff4d4d;
@@ -396,6 +439,7 @@
       <p class="subheadline">
         Paste your resume + job description. We'll roast it, fix it, and send you back something that actually gets interviews. <strong>$12 one-time.</strong>
       </p>
+      <p class="ai-proof-callout">🤖 Includes your <strong>AI-Proof Case</strong> — why you're harder to replace than the average candidate</p>
     </header>
 
     <form id="roastForm">
@@ -484,6 +528,19 @@ SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
           <li class="win"><strong>Strong company tenure.</strong> 2+ years at each role tells a story of ownership and follow-through. Startups hate job-hoppers. You're fine here.</li>
           <li class="win"><strong>You've actually shipped hard things.</strong> ERP integrations are painful, unsexy, and technically complex. That you survived it — and sped it up by 5x — is a real signal. Own it louder.</li>
         </ul>
+
+        <hr class="divider">
+
+        <p class="ai-proof-title">🤖 Your AI-Proof Case</p>
+        <p class="ai-proof-subtitle-sm">Why you're harder to replace than you think</p>
+        <div class="ai-proof">
+          <ul>
+            <li><strong>You own the stakeholder map.</strong> Six years at Acme means you know which VP actually controls the roadmap budget, which enterprise customer will threaten to churn if Feature X slips, and whose opinion moves the needle in planning. An AI doesn't have those relationships. You do. That's not transferable from a prompt.</li>
+            <li><strong>Institutional knowledge no onboarding doc captures.</strong> You know why the checkout redesign took 4 sprints instead of 2 (the legacy payment processor integration that isn't in any Jira ticket). You know which engineering decisions were political compromises vs. technical ones. That context shapes every future product decision. It lives in your head, not in Confluence.</li>
+            <li><strong>Enterprise sales cycle navigation requires a human face.</strong> When a $400K renewal is on the line and the CTO wants to get on a call with "whoever owns product," they're not asking for a chatbot. They want to look someone in the eye. Your track record of managing those moments is something an AI can't replicate on a Zoom call with a nervous account exec.</li>
+            <li><strong>Ambiguous tradeoffs are your actual job.</strong> "Do we ship this half-baked feature to close the Q3 deal or hold it for quality?" That judgment call isn't a search query. It requires knowing the customer, the team's capacity, the CEO's risk tolerance, and the competitive window — all at once. You've made those calls. An AI hasn't lived the consequences.</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Accordion item 2: Jordan Lee -->
@@ -534,6 +591,19 @@ SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
           <li class="win"><strong>The breadth of stack is genuinely an asset — if you pick a lane.</strong> Full-stack exposure is valuable at a startup where you'll wear many hats. Just lead with your strongest 4–5 tools, not 23.</li>
           <li class="win"><strong>You've worked across the stack and evidently survived it.</strong> Anyone who's touched infra, backend, and frontend has war stories. Those stories are exactly what startup CTOs want to hear. You just need to write them down.</li>
         </ul>
+
+        <hr class="divider">
+
+        <p class="ai-proof-title">🤖 Your AI-Proof Case</p>
+        <p class="ai-proof-subtitle-sm">Why you're harder to replace than you think</p>
+        <div class="ai-proof">
+          <ul>
+            <li><strong>Deep codebase knowledge no AI has seen.</strong> You've spent years navigating TechCorp's monolith — the undocumented edge cases, the "never touch this" modules, the brittle auth service you rewrote from memory. An AI coding tool has zero context on any of that. You're the human manual for a system that lives in your fingers as much as the docs.</li>
+            <li><strong>Engineering team trust built over time.</strong> You mentored two engineers who got promoted. You know who needs detailed specs vs. who runs with a Slack message. You know which senior engineer shuts down in big meetings but has the best ideas in 1-on-1s. That relational capital is the difference between a sprint that ships and one that stalls.</li>
+            <li><strong>Technical debt tradeoffs require business context, not just code context.</strong> Deciding whether to pay down the authentication service debt now or defer it for six months isn't a code review — it's a judgment call that requires knowing the fundraise timeline, the upcoming product launch, and the CEO's appetite for risk. You've lived those decisions. An AI can suggest options; you have to own the outcome.</li>
+            <li><strong>Incident response is a human sport.</strong> When the service goes down at 2am and the CTO is awake, they want you on the call — not because you can type faster than an AI, but because you know the system's history, can make the call to rollback vs. hotfix, and can communicate status to a panicking sales team simultaneously. That situational judgment is earned, not prompted.</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Accordion item 3: Sam Rivera -->
@@ -584,6 +654,19 @@ HEAD OF MARKETING — BrandCo (2023–present)
           <li class="win"><strong>Cross-channel experience is genuinely valuable.</strong> Someone who's run paid, content, brand, and lifecycle (even if the resume buries it) is rare. Most marketers specialize early. You've got the breadth to lead a team with different functions.</li>
           <li class="win"><strong>You managed a $500K budget and presumably didn't blow it.</strong> Budget stewardship at that level is a real signal of seniority. You just need to attach an outcome to it so it lands as a win instead of a footnote.</li>
         </ul>
+
+        <hr class="divider">
+
+        <p class="ai-proof-title">🤖 Your AI-Proof Case</p>
+        <p class="ai-proof-subtitle-sm">Why you're harder to replace than you think</p>
+        <div class="ai-proof">
+          <ul>
+            <li><strong>Agency and media relationships are yours, not the company's.</strong> The creative director at your agency who turns around brand work in 48 hours instead of three weeks? That's your relationship. The journalist who covered your rebrand because you called in a favor? That's your Rolodex. An AI can draft the outreach — it can't call in years of goodwill from a Sunday-morning text.</li>
+            <li><strong>You own the brand voice in a way no prompt can replicate.</strong> After seven years of shaping how this company sounds — what words they avoid, which narratives resonate with their specific buyer, which tone falls flat in enterprise vs. SMB — that institutional voice lives in your head. Handing it to an AI means starting from zero. Keeping you means preserving it.</li>
+            <li><strong>Exec trust for sensitive campaigns is not transferable.</strong> When the CEO wants to respond to a public controversy or reposition the company mid-fundraise, they're not spinning up a new vendor. They call the person they trust to get it right under pressure without embarrassing anyone. You've earned that seat. An AI hasn't been in the room when things went sideways.</li>
+            <li><strong>Influencer and media relationships require ongoing human presence.</strong> The best brand partnerships come from relationships cultivated over years — lunches, event appearances, genuine reciprocity. Those contacts respond to you. They don't respond to an AI-generated cold outreach on behalf of whoever just got hired. That network is a competitive moat no LLM can build for a new hire in year one.</li>
+          </ul>
+        </div>
       </div>
     </section>
   </div>
