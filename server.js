@@ -10,14 +10,6 @@ const app = express();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-function getAnthropicClient(email) {
-  const isOwner = email && process.env.OWNER_EMAIL &&
-    email.toLowerCase() === process.env.OWNER_EMAIL.toLowerCase();
-  return isOwner && process.env.ANTHROPIC_API_KEY_OWNER
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY_OWNER })
-    : anthropic;
-}
-
 // Resend email client (optional)
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -544,8 +536,7 @@ app.get("/api/result", async (req, res) => {
   // Fire and forget — generate in background
   (async () => {
     try {
-      const client = getAnthropicClient(job.email);
-      const message = await client.messages.create({
+      const message = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
         system:
@@ -571,6 +562,42 @@ app.get("/api/result", async (req, res) => {
     } finally {
       generating.delete(session_id);
     }
+  })();
+});
+
+// ─── Owner test bypass (no Stripe) ───────────────────────────────────────────
+// Hit /dev-roast?secret=YOUR_SECRET with resume + jobDescription in body
+app.post("/dev-roast", express.json(), async (req, res) => {
+  const secret = req.query.secret || req.body.secret;
+  if (!secret || secret !== process.env.DEV_SECRET) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+  let { resume, jobDescription, jobUrl } = req.body;
+  if (!resume) return res.status(400).json({ error: "resume required" });
+  if (!jobDescription && jobUrl) {
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 5000);
+      const r = await fetch(jobUrl, { signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0" } });
+      const html = await r.text();
+      jobDescription = stripHtml(html).slice(0, 4000);
+    } catch { return res.status(422).json({ error: "Couldn't fetch that URL." }); }
+  }
+  if (!jobDescription) return res.status(400).json({ error: "jobDescription required" });
+  const id = crypto.randomUUID().replace(/-/g, "");
+  stmtInsert.run({ id, resume, job_description: jobDescription, created_at: Date.now(), ats_id: null });
+  stmtUpdate.run({ paid: 1, email: "dev@test.local", id });
+  res.json({ id, resultUrl: `/result.html?session_id=${id}` });
+  // Generate in background
+  (async () => {
+    try {
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514", max_tokens: 4096,
+        system: "You are a savage but brilliant career coach...",
+        messages: [{ role: "user", content: `Here is the resume:\n${resume}\n\nHere is the job description:\n${jobDescription}\n\nProvide all 5 sections: 1. ATS KEYWORD ANALYSIS 2. THE ROAST 3. THE FIX 4. TOP 3 WINS 5. YOUR AI-PROOF CASE` }]
+      });
+      stmtResult.run({ result: message.content[0].text, id });
+    } catch (err) { console.error("dev-roast Claude error:", err.message); }
   })();
 });
 
