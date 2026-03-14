@@ -144,6 +144,91 @@
       margin: 32px 0;
     }
 
+    /* Before/After ATS Score Comparison Card */
+    .score-comparison {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .score-comparison .sc-title {
+      color: #aaa;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .score-comparison .sc-scores {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .score-comparison .sc-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .score-comparison .sc-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .score-comparison .sc-num-before {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #ff6b35;
+      line-height: 1;
+    }
+
+    .score-comparison .sc-num-after {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #4dff91;
+      line-height: 1;
+    }
+
+    .score-comparison .sc-num-only {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #4dff91;
+      line-height: 1;
+    }
+
+    .score-comparison .sc-arrow {
+      font-size: 1.8rem;
+      color: #555;
+    }
+
+    .score-comparison .sc-delta {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #4dff91;
+      margin-left: 4px;
+    }
+
+    .score-comparison .sc-delta-neg {
+      color: #ff4d4d;
+    }
+
+    .score-comparison .sc-only-label {
+      color: #aaa;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
     /* ATS Keyword Analysis section gets an orange/amber accent */
     .result .ats-section {
       background: #1a1200;
@@ -225,6 +310,8 @@
       <p class="poll-status" id="pollStatus"></p>
     </div>
 
+    <div class="score-comparison" id="scoreComparison" style="display:none"></div>
+
     <div class="result" id="result"></div>
 
     <div class="error" id="error">
@@ -236,11 +323,46 @@
   <footer>&copy; 2026 ResumeSucks.com &mdash; Powered by AI. No refunds on hurt feelings.</footer>
 
   <script>
-    const loadingEl  = document.getElementById("loading");
-    const resultEl   = document.getElementById("result");
-    const errorEl    = document.getElementById("error");
-    const errorMsg   = document.getElementById("errorMsg");
-    const pollStatus = document.getElementById("pollStatus");
+    const loadingEl         = document.getElementById("loading");
+    const resultEl          = document.getElementById("result");
+    const errorEl           = document.getElementById("error");
+    const errorMsg          = document.getElementById("errorMsg");
+    const pollStatus        = document.getElementById("pollStatus");
+    const scoreComparisonEl = document.getElementById("scoreComparison");
+
+    function renderScoreComparison(beforeScore, afterScore) {
+      if (afterScore == null) {
+        scoreComparisonEl.style.display = "none";
+        return;
+      }
+
+      let html = `<div class="sc-title">📊 ATS Score Improvement</div>`;
+
+      if (beforeScore != null) {
+        const delta = afterScore - beforeScore;
+        const deltaSign = delta >= 0 ? "+" : "";
+        const deltaClass = delta >= 0 ? "sc-delta" : "sc-delta sc-delta-neg";
+        const arrow = delta >= 0 ? "↑" : "↓";
+        html += `<div class="sc-scores">
+          <div class="sc-block">
+            <div class="sc-label">Before</div>
+            <div class="sc-num-before">${beforeScore}%</div>
+          </div>
+          <div class="sc-arrow">→</div>
+          <div class="sc-block">
+            <div class="sc-label">After</div>
+            <div class="sc-num-after">${afterScore}%</div>
+          </div>
+          <div class="${deltaClass}">${arrow} ${deltaSign}${delta} pts</div>
+        </div>`;
+      } else {
+        html += `<div class="sc-only-label">Rewritten Resume ATS Score</div>
+        <div class="sc-num-only">${afterScore}%</div>`;
+      }
+
+      scoreComparisonEl.innerHTML = html;
+      scoreComparisonEl.style.display = "block";
+    }
 
     function renderResult(text) {
       // New prompt order: 1. ATS KEYWORD ANALYSIS, 2. THE ROAST, 3. THE FIX, 4. TOP 3 WINS, 5. YOUR AI-PROOF CASE
@@ -381,6 +503,7 @@
 
           if (data.status === "ready") {
             loadingEl.style.display = "none";
+            renderScoreComparison(data.beforeScore ?? null, data.afterScore ?? null);
             resultEl.innerHTML = renderResult(data.result);
             resultEl.style.display = "block";
             return;

@@ -36,6 +36,11 @@ try {
   db.exec(`ALTER TABLE jobs ADD COLUMN ats_id TEXT`);
 } catch (_) { /* column already exists */ }
 
+// Add after_ats_score column if it doesn't exist (migration for existing DBs)
+try {
+  db.exec(`ALTER TABLE jobs ADD COLUMN after_ats_score INTEGER`);
+} catch (_) { /* column already exists */ }
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS ats_checks (
     id TEXT PRIMARY KEY,
@@ -54,7 +59,7 @@ const stmtInsert = db.prepare(
 );
 const stmtGet    = db.prepare(`SELECT * FROM jobs WHERE id = ?`);
 const stmtUpdate = db.prepare(`UPDATE jobs SET paid = @paid, email = @email WHERE id = @id`);
-const stmtResult = db.prepare(`UPDATE jobs SET result = @result WHERE id = @id`);
+const stmtResult = db.prepare(`UPDATE jobs SET result = @result, after_ats_score = @after_ats_score WHERE id = @id`);
 const stmtDelete = db.prepare(`DELETE FROM jobs WHERE created_at < ?`);
 
 // ATS checks statements
@@ -521,7 +526,14 @@ app.get("/api/result", async (req, res) => {
 
   // If result already ready, return it
   if (job.result) {
-    return res.json({ status: "ready", result: job.result });
+    // Get beforeScore from ats_checks if ats_id exists
+    let beforeScore = null;
+    if (job.ats_id) {
+      const atsRow = stmtAtsGet.get(job.ats_id);
+      if (atsRow) beforeScore = atsRow.score;
+    }
+    const afterScore = job.after_ats_score != null ? job.after_ats_score : null;
+    return res.json({ status: "ready", result: job.result, beforeScore, afterScore });
   }
 
   // If already generating, report status
@@ -550,7 +562,19 @@ app.get("/api/result", async (req, res) => {
       });
 
       const result = message.content[0].text;
-      stmtResult.run({ result, id: session_id });
+
+      // Extract the rewritten resume from THE FIX section
+      const fixMatch = result.match(/##\s*(?:2\.?\s*)?THE FIX[\s\S]*?\n([\s\S]*?)(?=\n##\s*(?:3\.?\s*)?TOP|\n##\s*(?:4\.?\s*)?YOUR|$)/i);
+      const rewrittenResume = fixMatch ? fixMatch[1].trim() : null;
+
+      // Compute after score if we have the rewritten resume and job description
+      let afterScore = null;
+      if (rewrittenResume && job.job_description) {
+        const afterAts = computeAtsScore(rewrittenResume, job.job_description);
+        afterScore = afterAts.score;
+      }
+
+      stmtResult.run({ result, after_ats_score: afterScore, id: session_id });
 
       // Send email if we have one
       const freshJob = stmtGet.get(session_id);
