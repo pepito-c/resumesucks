@@ -702,12 +702,13 @@
       <!-- Step 2 — Job -->
       <div class="form-step">
         <span class="step-label">Step 2 — The Job</span>
-        <input type="url" id="jobUrl" class="url-input" placeholder="https://jobs.lever.co/company/job-id">
-        <a href="#" class="job-input-toggle" id="jobPasteToggle">↓ Paste job description instead</a>
-        <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." maxlength="8000" style="display:none; margin-top:12px;"></textarea>
-        <!-- Hidden mode buttons — preserved for JS form submit compatibility -->
-        <button type="button" class="mode-btn" id="modeText">Paste text</button>
-        <button type="button" class="mode-btn active" id="modeUrl">Paste URL</button>
+        <textarea id="jobSmartInput" placeholder="Paste the job posting URL or the full job description — we'll figure it out" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
+        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Works with LinkedIn, Indeed, Lever, Greenhouse, or any job URL. Or just paste the text directly.</p>
+        <!-- Hidden fields — preserved for JS form submit compatibility -->
+        <input type="url" id="jobUrl" style="display:none;">
+        <textarea id="jobDescription" name="jobDescription" maxlength="8000" style="display:none;"></textarea>
+        <button type="button" class="mode-btn" id="modeText" style="display:none;">Paste text</button>
+        <button type="button" class="mode-btn active" id="modeUrl" style="display:none;">Paste URL</button>
       </div>
 
       <div class="cta-wrap">
@@ -1185,43 +1186,16 @@ HEAD OF MARKETING — BrandCo (2023–present)
       });
     });
 
-    // ── Job input: URL is default, paste toggle switches between modes ────
-    const modeTextBtn  = document.getElementById("modeText");
-    const modeUrlBtn   = document.getElementById("modeUrl");
-    const jobDescTA    = document.getElementById("jobDescription");
-    const jobUrlInput  = document.getElementById("jobUrl");
-    const pasteToggle  = document.getElementById("jobPasteToggle");
+    // ── Job input: single smart box — auto-detects URL vs text ──────────
+    const modeTextBtn    = document.getElementById("modeText");
+    const modeUrlBtn     = document.getElementById("modeUrl");
+    const jobDescTA      = document.getElementById("jobDescription");
+    const jobUrlInput    = document.getElementById("jobUrl");
+    const jobSmartInput  = document.getElementById("jobSmartInput");
 
-    // Internal state helpers (hidden buttons stay in sync for form submit logic)
-    function setUrlMode() {
-      modeUrlBtn.classList.add("active");
-      modeTextBtn.classList.remove("active");
-      jobUrlInput.style.display = "";
-      jobDescTA.style.display = "none";
-      jobDescTA.value = "";
-      pasteToggle.textContent = "↓ Paste job description instead";
+    function isUrl(val) {
+      return /^https?:\/\//i.test(val.trim());
     }
-
-    function setTextMode() {
-      modeTextBtn.classList.add("active");
-      modeUrlBtn.classList.remove("active");
-      jobDescTA.style.display = "";
-      jobUrlInput.style.display = "none";
-      jobUrlInput.value = "";
-      pasteToggle.textContent = "↑ Use job URL instead";
-    }
-
-    // On page load: URL is primary
-    setUrlMode();
-
-    pasteToggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (modeUrlBtn.classList.contains("active")) {
-        setTextMode();
-      } else {
-        setUrlMode();
-      }
-    });
 
     // ── ATS Score form ────────────────────────────────────────────────────
     const form        = document.getElementById("roastForm");
@@ -1266,11 +1240,11 @@ HEAD OF MARKETING — BrandCo (2023–present)
       errorMsg.textContent = "";
 
       const resume = document.getElementById("resume").value.trim();
-      const isUrlMode = modeUrlBtn.classList.contains("active");
-      const jobDescription = isUrlMode ? "" : jobDescTA.value.trim();
-      const jobUrl = isUrlMode ? jobUrlInput.value.trim() : "";
+      const jobRaw = jobSmartInput.value.trim();
+      const jobUrl = isUrl(jobRaw) ? jobRaw : "";
+      const jobDescription = isUrl(jobRaw) ? "" : jobRaw;
 
-      if (!resume || (!jobDescription && !jobUrl)) {
+      if (!resume || !jobRaw) {
         errorMsg.textContent = "Both fields are required.";
         return;
       }
@@ -1281,7 +1255,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
 
       try {
         const payload = { resume };
-        if (isUrlMode) payload.jobUrl = jobUrl;
+        if (jobUrl) payload.jobUrl = jobUrl;
         else payload.jobDescription = jobDescription;
 
         const res = await fetch("/ats-score", {
@@ -1338,10 +1312,8 @@ HEAD OF MARKETING — BrandCo (2023–present)
           ? { atsId: currentAtsId }
           : {
               resume: document.getElementById("resume").value.trim(),
-              jobDescription: modeUrlBtn.classList.contains("active")
-                ? "" : jobDescTA.value.trim(),
-              jobUrl: modeUrlBtn.classList.contains("active")
-                ? jobUrlInput.value.trim() : "",
+              jobDescription: isUrl(jobSmartInput.value.trim()) ? "" : jobSmartInput.value.trim(),
+              jobUrl: isUrl(jobSmartInput.value.trim()) ? jobSmartInput.value.trim() : "",
             };
 
         const res = await fetch("/create-checkout-session", {
