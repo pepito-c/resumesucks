@@ -474,6 +474,7 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
+      allow_promotion_codes: true,
       success_url: `${req.protocol}://${req.get("host")}/result.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.protocol}://${req.get("host")}/`,
     });
