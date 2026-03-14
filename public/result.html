@@ -261,6 +261,86 @@
       color: #e8c580;
     }
 
+    /* ── Resume Card (THE FIX) ─────────────────────────────────────────── */
+    .resume-card {
+      background: #fff;
+      color: #1a1a1a;
+      border-radius: 10px;
+      padding: 40px 48px;
+      margin: 24px 0;
+      font-family: 'Georgia', serif;
+      line-height: 1.6;
+    }
+    .resume-download-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #eee;
+    }
+    .download-btn {
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      transition: background 0.2s;
+    }
+    .download-btn:hover { background: #e03030; }
+    .download-hint {
+      font-size: 0.8rem;
+      color: #999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .resume-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .resume-section-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 4px;
+      margin: 20px 0 10px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .resume-bullet {
+      font-size: 0.92rem;
+      color: #2a2a2a;
+      padding: 2px 0 2px 12px;
+    }
+    .resume-line {
+      font-size: 0.92rem;
+      color: #333;
+      padding: 2px 0;
+    }
+    .resume-spacer { height: 6px; }
+
+    /* Print: show only resume card */
+    @media print {
+      body * { visibility: hidden !important; }
+      #resumeCard, #resumeCard * { visibility: visible !important; }
+      #resumeCard {
+        position: fixed !important;
+        top: 0; left: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 32px 48px !important;
+        border-radius: 0 !important;
+      }
+      .resume-download-bar { display: none !important; }
+    }
+
     /* Error state */
     .error {
       display: none;
@@ -373,6 +453,8 @@
       const atsRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?/i;
       const roastRegex   = /(?:^|\n)(#+\s*)?(\*\*)?(?:2\.\s*)?THE ROAST(\*\*)?\s*[-–]?/i;
       const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
+      const fixRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?THE FIX(\*\*)?\s*[-–]?/i;
+      const winsRegex    = /(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?TOP\s+3\s+WINS(\*\*)?\s*[-–]?/i;
 
       const atsIdx     = text.search(atsRegex);
       const roastIdx   = text.search(roastRegex);
@@ -427,7 +509,29 @@
       }
 
       if (mainPart) {
-        html += markdownToHtml(mainPart);
+        const fixIdx  = mainPart.search(fixRegex);
+        const winsIdx = mainPart.search(winsRegex);
+
+        let roastPart, fixPart, winsPart;
+        if (fixIdx !== -1) {
+          roastPart = mainPart.slice(0, fixIdx);
+          if (winsIdx !== -1 && winsIdx > fixIdx) {
+            fixPart  = mainPart.slice(fixIdx, winsIdx);
+            winsPart = mainPart.slice(winsIdx);
+          } else {
+            fixPart  = mainPart.slice(fixIdx);
+            winsPart = "";
+          }
+        } else {
+          roastPart = mainPart;
+          fixPart   = "";
+          winsPart  = "";
+        }
+        const fixContent = fixPart.replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?THE FIX(\*\*)?\s*[-–]?\s*/i, '').trim();
+
+        html += markdownToHtml(roastPart);
+        if (fixContent) html += renderResumeCard(fixContent);
+        html += markdownToHtml(winsPart);
       }
 
       if (aiPart) {
@@ -471,6 +575,50 @@
         .replace(/$/, "</p>")
         // Clean up empty paragraphs
         .replace(/<p>\s*<\/p>/g, "");
+    }
+
+    function renderResumeCard(text) {
+      const lines = text.split('\n');
+      let body = '';
+      let nameFound = false;
+
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (!trimmed) { body += '<div class="resume-spacer"></div>'; return; }
+
+        // Name: first H1 or H2 line
+        if (!nameFound && /^#{1,2}\s+/.test(trimmed)) {
+          body += `<div class="resume-name">${trimmed.replace(/^#+\s+/, '').replace(/\*\*/g, '')}</div>`;
+          nameFound = true;
+        }
+        // Section header: ### or ALL CAPS (4+ chars) or **ALL CAPS**
+        else if (/^###\s+/.test(trimmed) || /^\*\*[A-Z][A-Z\s&]+\*\*$/.test(trimmed) || /^[A-Z][A-Z\s&]{3,}$/.test(trimmed)) {
+          const label = trimmed.replace(/^#+\s+/, '').replace(/\*\*/g, '');
+          body += `<div class="resume-section-header">${label}</div>`;
+        }
+        // Bullet point
+        else if (/^[-*•]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed)) {
+          const content = trimmed.replace(/^[-*•]\s+/, '').replace(/^\d+\.\s+/, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+          body += `<div class="resume-bullet">• ${content}</div>`;
+        }
+        // Regular line
+        else {
+          body += `<div class="resume-line">${trimmed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</div>`;
+        }
+      });
+
+      return `
+        <div class="resume-card" id="resumeCard">
+          <div class="resume-download-bar">
+            <button onclick="downloadResume()" class="download-btn">📄 Download as PDF</button>
+            <span class="download-hint">Opens print dialog — save as PDF</span>
+          </div>
+          <div class="resume-body">${body}</div>
+        </div>`;
+    }
+
+    function downloadResume() {
+      window.print();
     }
 
     function showError(msg) {
