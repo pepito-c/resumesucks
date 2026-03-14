@@ -25,14 +25,14 @@
     }
 
     .container {
-      max-width: 960px;
+      max-width: 720px;
       width: 100%;
       padding: 60px 24px 40px;
     }
 
     header {
       text-align: center;
-      margin-bottom: 48px;
+      margin-bottom: 40px;
     }
 
     h1 {
@@ -48,55 +48,81 @@
     .subheadline {
       font-size: 1.15rem;
       color: #999;
-      max-width: 600px;
+      max-width: 560px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
-    .subheadline strong { color: #e0e0e0; }
-
-    .ai-proof-callout {
-      margin-top: 14px;
-      font-size: 0.85rem;
-      color: #5a8aaa;
-      background: rgba(77, 159, 255, 0.08);
-      border: 1px solid rgba(77, 159, 255, 0.2);
-      border-radius: 6px;
-      display: inline-block;
-      padding: 6px 14px;
-    }
-
-    .ai-proof-callout strong { color: #4d9fff; }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-
-    .field label {
+    /* ── Step labels ─────────────────────────────────────────────────────── */
+    .step-label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #888;
+      letter-spacing: 0.08em;
+      color: #ff4d4d;
+      margin-bottom: 10px;
+    }
+
+    /* ── Form steps ──────────────────────────────────────────────────────── */
+    .form-step {
+      margin-bottom: 24px;
+    }
+
+    /* ── PDF Drop Zone ───────────────────────────────────────────────────── */
+    .pdf-drop-zone {
+      border: 2px dashed rgba(255, 77, 77, 0.35);
+      border-radius: 10px;
+      padding: 20px 20px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #141414;
+    }
+
+    .pdf-drop-zone.drag-over {
+      border-color: #ff4d4d;
+      box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.15);
+    }
+
+    .drop-zone-header {
+      text-align: center;
+      padding: 16px 0 14px;
+      pointer-events: none;
+    }
+
+    .drop-zone-icon {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
       margin-bottom: 8px;
+    }
+
+    .drop-zone-text {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+
+    .drop-zone-sub {
+      display: block;
+      font-size: 0.8rem;
+      color: #555;
     }
 
     textarea {
       width: 100%;
-      height: 340px;
+      height: 200px;
       background: #1a1a1a;
-      border: 1px solid #333;
+      border: 1px solid #2a2a2a;
       border-radius: 8px;
       color: #e0e0e0;
       font-family: inherit;
       font-size: 0.95rem;
-      padding: 16px;
+      padding: 14px 16px;
       resize: vertical;
       transition: border-color 0.2s;
+      margin-top: 4px;
     }
 
     textarea:focus {
@@ -106,10 +132,82 @@
 
     textarea::placeholder { color: #555; }
 
-    .cta-wrap { text-align: center; }
+    .pdf-hint {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pdf-upload-btn {
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 5px;
+      color: #777;
+      font-size: 0.78rem;
+      font-family: inherit;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+
+    .pdf-upload-btn:hover {
+      border-color: #ff4d4d;
+      color: #e0e0e0;
+    }
+
+    .pdf-inline-error {
+      color: #ff4d4d;
+      font-size: 0.78rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── Job URL input ───────────────────────────────────────────────────── */
+    .url-input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+      height: 52px;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: #ff4d4d;
+    }
+
+    .url-input::placeholder { color: #555; }
+
+    /* ── Job input toggle link ───────────────────────────────────────────── */
+    .job-input-toggle {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #555;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      user-select: none;
+    }
+
+    .job-input-toggle:hover {
+      color: #999;
+    }
+
+    /* ── CTA ─────────────────────────────────────────────────────────────── */
+    .cta-wrap { text-align: center; margin-top: 8px; }
 
     .cta {
-      display: inline-block;
+      display: block;
+      width: 100%;
       background: #ff4d4d;
       color: #fff;
       font-size: 1.2rem;
@@ -126,12 +224,9 @@
     .cta:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .trust-line {
-      margin-top: 14px;
+      margin-top: 12px;
       color: #555;
       font-size: 0.82rem;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
       line-height: 1.6;
     }
 
@@ -143,15 +238,121 @@
       min-height: 1.4em;
     }
 
-    footer {
-      text-align: center;
-      padding: 40px 24px;
-      color: #444;
-      font-size: 0.8rem;
+    /* ── Score reveal section ─────────────────────────────────────────────── */
+    #scoreReveal {
+      display: none;
+      margin-top: 40px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 36px 32px;
     }
 
-    /* What you get feature grid */
+    #scoreReveal.visible { display: block; }
+
+    .score-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .score-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .score-number-big {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #ff9500;
+      line-height: 1;
+      display: block;
+    }
+
+    .score-interpretation {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .keywords-section {
+      margin-top: 24px;
+    }
+
+    .keywords-section h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 12px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .pill-missing {
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid rgba(255, 77, 77, 0.35);
+      color: #ff8080;
+    }
+
+    .pill-present {
+      background: rgba(77, 255, 145, 0.1);
+      border: 1px solid rgba(77, 255, 145, 0.3);
+      color: #4dff91;
+      font-size: 0.78rem;
+    }
+
+    .upsell-block {
+      text-align: center;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .upsell-btn {
+      display: inline-block;
+      background: #ff9500;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 48px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .upsell-btn:hover { background: #e08600; }
+    .upsell-btn:active { transform: scale(0.98); }
+    .upsell-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .upsell-sub {
+      margin-top: 12px;
+      color: #666;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    /* ── What You Get (below fold) ───────────────────────────────────────── */
     .features-section {
+      margin-top: 64px;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 48px;
       margin-bottom: 48px;
     }
 
@@ -208,7 +409,7 @@
       .feature-card:last-child:nth-child(odd) { grid-column: auto; }
     }
 
-    /* Sample roast section */
+    /* ── Sample roast section ────────────────────────────────────────────── */
     .sample-section {
       margin-top: 64px;
       border-top: 1px solid #2a2a2a;
@@ -428,43 +629,10 @@
       white-space: pre-wrap;
     }
 
-    /* Input mode toggle */
-    .input-mode-toggle {
-      display: flex;
-      gap: 0;
-      margin-top: 8px;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid #333;
-      width: fit-content;
-    }
+    /* Hidden mode buttons — kept for JS compatibility */
+    .mode-btn { display: none; }
 
-    .mode-btn {
-      background: transparent;
-      color: #888;
-      border: none;
-      padding: 6px 14px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      font-family: inherit;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .mode-btn:first-child { border-right: 1px solid #333; }
-
-    .mode-btn.active {
-      background: #ff4d4d;
-      color: #fff;
-    }
-
-    .mode-btn:not(.active):hover {
-      background: #2a2a2a;
-      color: #ccc;
-    }
-
+    /* ── Input mode toggle (legacy, hidden) ─────────────────────────────── */
     .url-input {
       width: 100%;
       background: #1a1a1a;
@@ -485,186 +653,98 @@
 
     .url-input::placeholder { color: #555; }
 
+    /* ── Mobile ──────────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
-      .form-grid { grid-template-columns: 1fr; }
       h1 { font-size: 2rem; }
-      textarea { height: 220px; }
+      textarea { height: 160px; }
+      .drop-zone-header { padding: 12px 0 10px; }
+      .drop-zone-text { font-size: 1rem; }
     }
 
-    /* PDF drop zone */
-    .pdf-drop-zone {
-      position: relative;
-      border-radius: 8px;
-      transition: box-shadow 0.2s;
-    }
-
-    .pdf-drop-zone.drag-over textarea {
-      border-color: #ff4d4d;
-      box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.25);
-    }
-
-    .pdf-hint {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 7px;
-    }
-
-    .pdf-hint-text {
-      font-size: 0.75rem;
-      color: #555;
-    }
-
-    .pdf-upload-btn {
-      background: transparent;
-      border: 1px solid #333;
-      border-radius: 5px;
-      color: #777;
-      font-size: 0.75rem;
-      font-family: inherit;
-      padding: 4px 10px;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .pdf-upload-btn:hover {
-      border-color: #ff4d4d;
-      color: #e0e0e0;
-    }
-
-    .pdf-inline-error {
-      color: #ff4d4d;
-      font-size: 0.78rem;
-      margin-top: 5px;
-      display: none;
-    }
-
-    /* ── Score reveal section ─────────────────────────────────────────────── */
-    #scoreReveal {
-      display: none;
-      margin-top: 40px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 36px 32px;
-    }
-
-    #scoreReveal.visible { display: block; }
-
-    .score-header {
+    footer {
       text-align: center;
-      margin-bottom: 28px;
-    }
-
-    .score-header h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #888;
-      margin-bottom: 8px;
-    }
-
-    .score-number-big {
-      font-size: 4rem;
-      font-weight: 800;
-      color: #ff9500;
-      line-height: 1;
-      display: block;
-    }
-
-    .score-interpretation {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: #ccc;
-    }
-
-    .keywords-section {
-      margin-top: 24px;
-    }
-
-    .keywords-section h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 12px;
-    }
-
-    .pill-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .pill {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-    }
-
-    .pill-missing {
-      background: rgba(255, 77, 77, 0.12);
-      border: 1px solid rgba(255, 77, 77, 0.35);
-      color: #ff8080;
-    }
-
-    .pill-present {
-      background: rgba(77, 255, 145, 0.1);
-      border: 1px solid rgba(77, 255, 145, 0.3);
-      color: #4dff91;
-      font-size: 0.78rem;
-    }
-
-    .upsell-block {
-      text-align: center;
-      margin-top: 36px;
-      padding-top: 28px;
-      border-top: 1px solid #2a2a2a;
-    }
-
-    .upsell-btn {
-      display: inline-block;
-      background: #ff9500;
-      color: #fff;
-      font-size: 1.15rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 8px;
-      padding: 18px 48px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .upsell-btn:hover { background: #e08600; }
-    .upsell-btn:active { transform: scale(0.98); }
-    .upsell-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .upsell-sub {
-      margin-top: 12px;
-      color: #666;
-      font-size: 0.82rem;
-      line-height: 1.6;
+      padding: 40px 24px;
+      color: #444;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
+
+    <!-- ── Hero ──────────────────────────────────────────────────────────── -->
     <header>
       <h1>Your Resume Is Getting <span>Filtered</span><br>Before Humans See It</h1>
-      <p class="subheadline">
-        Get your ATS match score, find the exact keywords you're missing, and get a full resume rewrite tailored for this job. <strong>$9 one-time.</strong>
-      </p>
-      <p class="ai-proof-callout">📊 <strong>5 sections:</strong> ATS Score · Roast · Rewrite · AI-Proof Case · Wins</p>
+      <p class="subheadline">Get your free ATS score instantly — see exactly why you're getting ghosted.</p>
     </header>
 
+    <!-- ── Form ──────────────────────────────────────────────────────────── -->
+    <form id="roastForm">
+
+      <!-- Step 1 — Resume -->
+      <div class="form-step">
+        <span class="step-label">Step 1 — Your Resume</span>
+        <div class="pdf-drop-zone" id="resumeDropZone">
+          <div class="drop-zone-header">
+            <span class="drop-zone-icon">📄</span>
+            <span class="drop-zone-text">Drop your PDF here</span>
+            <span class="drop-zone-sub">or paste your resume text below</span>
+          </div>
+          <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." maxlength="15000" required></textarea>
+        </div>
+        <div class="pdf-hint">
+          <button type="button" class="pdf-upload-btn" id="pdfUploadBtn">📎 Upload PDF</button>
+        </div>
+        <p class="pdf-inline-error" id="pdfError"></p>
+        <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
+      </div>
+
+      <!-- Step 2 — Job -->
+      <div class="form-step">
+        <span class="step-label">Step 2 — The Job</span>
+        <input type="url" id="jobUrl" class="url-input" placeholder="https://jobs.lever.co/company/job-id">
+        <a href="#" class="job-input-toggle" id="jobPasteToggle">↓ Paste job description instead</a>
+        <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." maxlength="8000" style="display:none; margin-top:12px;"></textarea>
+        <!-- Hidden mode buttons — preserved for JS form submit compatibility -->
+        <button type="button" class="mode-btn" id="modeText">Paste text</button>
+        <button type="button" class="mode-btn active" id="modeUrl">Paste URL</button>
+      </div>
+
+      <div class="cta-wrap">
+        <button type="submit" class="cta" id="ctaBtn">Get My Free ATS Score &rarr;</button>
+        <p class="trust-line">Instant. No payment. See your score + missing keywords in seconds.</p>
+      </div>
+      <p class="error-msg" id="errorMsg"></p>
+    </form>
+
+    <!-- ── Score Reveal (hidden until submit) ────────────────────────────── -->
+    <div id="scoreReveal">
+      <div class="score-header">
+        <h2>Your ATS Match Score</h2>
+        <span class="score-number-big" id="scoreDisplay">0%</span>
+        <p class="score-interpretation" id="scoreInterpretation"></p>
+      </div>
+
+      <div class="keywords-section" id="missingSection" style="display:none">
+        <h3>❌ Keywords ATS filters are scanning for (not found in your resume):</h3>
+        <div class="pill-list" id="missingPills"></div>
+      </div>
+
+      <div class="keywords-section" id="presentSection" style="display:none; margin-top:16px;">
+        <h3>✅ Keywords you have covered:</h3>
+        <div class="pill-list" id="presentPills"></div>
+      </div>
+
+      <div class="upsell-block">
+        <button class="upsell-btn" id="upsellBtn">Get the Full Analysis — Roast, Rewrite &amp; Fix &rarr; $9</button>
+        <p class="upsell-sub">Includes brutal roast, full rewrite, AI-proof case, and specific sentences to add for each missing keyword</p>
+        <p class="error-msg" id="upsellErrorMsg"></p>
+      </div>
+    </div>
+
+    <!-- ── What You Get (below fold) ─────────────────────────────────────── -->
     <section class="features-section" aria-label="What you get">
-      <h2>What You Get</h2>
+      <h2>What's in the full report ($9)</h2>
       <div class="features-grid">
         <div class="feature-card">
           <span class="feature-icon">📊</span>
@@ -694,64 +774,9 @@
       </div>
     </section>
 
-    <form id="roastForm">
-      <div class="form-grid">
-        <div class="field">
-          <label for="resume">Your Resume</label>
-          <div class="pdf-drop-zone" id="resumeDropZone">
-            <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." maxlength="15000" required></textarea>
-          </div>
-          <div class="pdf-hint">
-            <span class="pdf-hint-text">Paste your resume or drag &amp; drop a PDF</span>
-            <button type="button" class="pdf-upload-btn" id="pdfUploadBtn">📎 Upload PDF</button>
-          </div>
-          <p class="pdf-inline-error" id="pdfError"></p>
-          <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
-        </div>
-        <div class="field">
-          <label for="jobDescription">Target Job Description</label>
-          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." maxlength="8000"></textarea>
-          <input type="url" id="jobUrl" class="url-input" placeholder="https://jobs.lever.co/company/job-id" style="display:none; margin-top:8px;">
-          <div class="input-mode-toggle" style="margin-top:8px;">
-            <button type="button" class="mode-btn active" id="modeText">Paste text</button>
-            <button type="button" class="mode-btn" id="modeUrl">Paste URL</button>
-          </div>
-        </div>
-      </div>
+  </div><!-- /container -->
 
-      <div class="cta-wrap">
-        <button type="submit" class="cta" id="ctaBtn">Get My Free ATS Score &rarr;</button>
-        <p class="trust-line">Instant. No payment. See your score + missing keywords in seconds.</p>
-      </div>
-      <p class="error-msg" id="errorMsg"></p>
-    </form>
-
-    <!-- Score reveal (shown after free ATS check) -->
-    <div id="scoreReveal">
-      <div class="score-header">
-        <h2>Your ATS Match Score</h2>
-        <span class="score-number-big" id="scoreDisplay">0%</span>
-        <p class="score-interpretation" id="scoreInterpretation"></p>
-      </div>
-
-      <div class="keywords-section" id="missingSection" style="display:none">
-        <h3>❌ Keywords ATS filters are scanning for (not found in your resume):</h3>
-        <div class="pill-list" id="missingPills"></div>
-      </div>
-
-      <div class="keywords-section" id="presentSection" style="display:none; margin-top:16px;">
-        <h3>✅ Keywords you have covered:</h3>
-        <div class="pill-list" id="presentPills"></div>
-      </div>
-
-      <div class="upsell-block">
-        <button class="upsell-btn" id="upsellBtn">Get the Full Analysis — Roast, Rewrite &amp; Fix &rarr; $9</button>
-        <p class="upsell-sub">Includes brutal roast, full rewrite, AI-proof case, and specific sentences to add for each missing keyword</p>
-        <p class="error-msg" id="upsellErrorMsg"></p>
-      </div>
-    </div>
-  </div>
-
+  <!-- ── Sample Roasts ────────────────────────────────────────────────────── -->
   <div class="container">
     <section class="sample-section" aria-label="Sample roasts">
       <h2>Real Roasts — <span>See What We Actually Deliver</span></h2>
@@ -1057,7 +1082,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
 
       </div>
     </section>
-  </div>
+  </div><!-- /container -->
 
   <footer>&copy; 2026 ResumeSucks.com &mdash; Powered by AI. No refunds on hurt feelings.</footer>
 
@@ -1080,7 +1105,6 @@ HEAD OF MARKETING — BrandCo (2023–present)
         const pageText = content.items.map((item) => item.str).join(' ');
         pageTexts.push(pageText);
       }
-      // Join pages, collapse excessive whitespace
       return pageTexts
         .join('\n')
         .replace(/[ \t]{3,}/g, '  ')
@@ -1091,7 +1115,6 @@ HEAD OF MARKETING — BrandCo (2023–present)
     async function handlePdfFile(file) {
       const resumeTA  = document.getElementById('resume');
       const pdfError  = document.getElementById('pdfError');
-      const dropZone  = document.getElementById('resumeDropZone');
 
       if (!file || file.type !== 'application/pdf') {
         pdfError.textContent = "Couldn't read that PDF. Please paste your resume as text.";
@@ -1117,7 +1140,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
       }
     }
 
-    // Drag-and-drop
+    // Drag-and-drop on the drop zone
     const dropZone = document.getElementById('resumeDropZone');
 
     dropZone.addEventListener('dragover', (e) => {
@@ -1141,18 +1164,18 @@ HEAD OF MARKETING — BrandCo (2023–present)
     });
 
     // File picker button
-    const pdfUploadBtn  = document.getElementById('pdfUploadBtn');
-    const pdfFileInput  = document.getElementById('pdfFileInput');
+    const pdfUploadBtn = document.getElementById('pdfUploadBtn');
+    const pdfFileInput = document.getElementById('pdfFileInput');
 
     pdfUploadBtn.addEventListener('click', () => pdfFileInput.click());
 
     pdfFileInput.addEventListener('change', () => {
       const file = pdfFileInput.files[0];
       if (file) handlePdfFile(file);
-      pdfFileInput.value = ''; // reset so same file can be re-selected
+      pdfFileInput.value = '';
     });
 
-    // Sample roast accordion — handles multiple toggles generically
+    // Sample roast accordion
     document.querySelectorAll(".sample-toggle").forEach((toggle) => {
       toggle.addEventListener("click", () => {
         const targetId = toggle.getAttribute("data-target");
@@ -1162,35 +1185,51 @@ HEAD OF MARKETING — BrandCo (2023–present)
       });
     });
 
-    // Input mode toggle
-    const modeTextBtn = document.getElementById("modeText");
-    const modeUrlBtn  = document.getElementById("modeUrl");
-    const jobDescTA   = document.getElementById("jobDescription");
-    const jobUrlInput = document.getElementById("jobUrl");
+    // ── Job input: URL is default, paste toggle switches between modes ────
+    const modeTextBtn  = document.getElementById("modeText");
+    const modeUrlBtn   = document.getElementById("modeUrl");
+    const jobDescTA    = document.getElementById("jobDescription");
+    const jobUrlInput  = document.getElementById("jobUrl");
+    const pasteToggle  = document.getElementById("jobPasteToggle");
 
-    modeTextBtn.addEventListener("click", () => {
+    // Internal state helpers (hidden buttons stay in sync for form submit logic)
+    function setUrlMode() {
+      modeUrlBtn.classList.add("active");
+      modeTextBtn.classList.remove("active");
+      jobUrlInput.style.display = "";
+      jobDescTA.style.display = "none";
+      jobDescTA.value = "";
+      pasteToggle.textContent = "↓ Paste job description instead";
+    }
+
+    function setTextMode() {
       modeTextBtn.classList.add("active");
       modeUrlBtn.classList.remove("active");
       jobDescTA.style.display = "";
       jobUrlInput.style.display = "none";
       jobUrlInput.value = "";
+      pasteToggle.textContent = "↑ Use job URL instead";
+    }
+
+    // On page load: URL is primary
+    setUrlMode();
+
+    pasteToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (modeUrlBtn.classList.contains("active")) {
+        setTextMode();
+      } else {
+        setUrlMode();
+      }
     });
 
-    modeUrlBtn.addEventListener("click", () => {
-      modeUrlBtn.classList.add("active");
-      modeTextBtn.classList.remove("active");
-      jobDescTA.style.display = "none";
-      jobUrlInput.style.display = "";
-      jobDescTA.value = "";
-    });
-
-    // ── ATS Score form ────────────────────────────────────────────────────────
-    const form = document.getElementById("roastForm");
-    const btn = document.getElementById("ctaBtn");
-    const errorMsg = document.getElementById("errorMsg");
+    // ── ATS Score form ────────────────────────────────────────────────────
+    const form        = document.getElementById("roastForm");
+    const btn         = document.getElementById("ctaBtn");
+    const errorMsg    = document.getElementById("errorMsg");
     const scoreReveal = document.getElementById("scoreReveal");
 
-    let currentAtsId = null; // store after free check for upsell
+    let currentAtsId = null;
 
     function getScoreInterpretation(score) {
       if (score <= 40) return "🚨 High risk of being filtered";
@@ -1205,7 +1244,6 @@ HEAD OF MARKETING — BrandCo (2023–present)
       function step(now) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        // ease-out cubic
         const eased = 1 - Math.pow(1 - progress, 3);
         el.textContent = Math.round(eased * target) + suffix;
         if (progress < 1) requestAnimationFrame(step);
@@ -1253,16 +1291,13 @@ HEAD OF MARKETING — BrandCo (2023–present)
         });
 
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.error || "Something went wrong.");
 
         currentAtsId = data.id;
 
-        // Reveal section
         scoreReveal.classList.add("visible");
         scoreReveal.scrollIntoView({ behavior: "smooth", block: "start" });
 
-        // Animate score counter
         const scoreEl = document.getElementById("scoreDisplay");
         animateCounter(scoreEl, data.score, "%");
 
@@ -1289,8 +1324,8 @@ HEAD OF MARKETING — BrandCo (2023–present)
       }
     });
 
-    // ── Upsell button → Stripe checkout ──────────────────────────────────────
-    const upsellBtn = document.getElementById("upsellBtn");
+    // ── Upsell button → Stripe checkout ──────────────────────────────────
+    const upsellBtn      = document.getElementById("upsellBtn");
     const upsellErrorMsg = document.getElementById("upsellErrorMsg");
 
     upsellBtn.addEventListener("click", async () => {
