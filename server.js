@@ -197,7 +197,7 @@ async function sendRoastEmail(toEmail, roastText, docxBuffer) {
     if (docxBuffer) {
       emailPayload.attachments = [{
         filename: "resume-rewritten.docx",
-        content: docxBuffer.toString("base64"),
+        content: docxBuffer,
       }];
     }
     await resend.emails.send(emailPayload);
@@ -635,7 +635,7 @@ app.get("/api/result", async (req, res) => {
       const result = message.content[0].text;
 
       // Extract the rewritten resume from THE FIX section
-      const fixMatch = result.match(/##\s*(?:2\.?\s*)?THE FIX[\s\S]*?\n([\s\S]*?)(?=\n##\s*(?:3\.?\s*)?TOP|\n##\s*(?:4\.?\s*)?YOUR|$)/i);
+      const fixMatch = result.match(/(?:^|\n)[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?THE FIX(?:\*\*)?\s*[-–]?[^\n]*\n([\s\S]*?)(?=\n[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?TOP\s+3|\n[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?YOUR AI|$)/i);
       const rewrittenResume = fixMatch ? fixMatch[1].trim() : null;
 
       // Compute after score if we have the rewritten resume and job description
