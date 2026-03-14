@@ -610,15 +610,17 @@
       return `
         <div class="resume-card" id="resumeCard">
           <div class="resume-download-bar">
-            <button onclick="downloadResume()" class="download-btn">📄 Download as PDF</button>
-            <span class="download-hint">Opens print dialog — save as PDF</span>
+            <button onclick="downloadResume()" class="download-btn">📄 Download as .docx</button>
+            <span class="download-hint">Word-compatible file — open in Google Docs or Microsoft Word</span>
           </div>
           <div class="resume-body">${body}</div>
         </div>`;
     }
 
     function downloadResume() {
-      window.print();
+      const sessionId = new URLSearchParams(window.location.search).get("session_id");
+      if (sessionId) window.location.href = `/download-resume/${sessionId}`;
+      else alert("Session not found — please reload the page.");
     }
 
     function showError(msg) {

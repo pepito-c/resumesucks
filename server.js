@@ -4,6 +4,7 @@ const Anthropic = require("@anthropic-ai/sdk");
 const Stripe = require("stripe");
 const Database = require("better-sqlite3");
 const { Resend } = require("resend");
+const { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer, BorderStyle } = require("docx");
 const path = require("path");
 
 const app = express();
@@ -85,8 +86,67 @@ setInterval(cleanOldJobs, 60 * 60 * 1000);
 // ─── In-memory Set to track which jobs are currently being generated ─────────
 const generating = new Set();
 
+// ─── Generate .docx from resume markdown text ────────────────────────────────
+async function generateResumeDocx(resumeText) {
+  const lines = resumeText.split("\n");
+  const children = [];
+
+  let nameFound = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      children.push(new Paragraph({ text: "" }));
+      continue;
+    }
+    // Name — first H1/H2
+    if (!nameFound && /^#{1,2}\s+/.test(trimmed)) {
+      const name = trimmed.replace(/^#+\s+/, "").replace(/\*\*/g, "");
+      children.push(new Paragraph({
+        children: [new TextRun({ text: name, bold: true, size: 36, color: "111111" })],
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.LEFT,
+        spacing: { after: 120 },
+      }));
+      nameFound = true;
+      continue;
+    }
+    // Section header — ### or ALL CAPS or **ALL CAPS**
+    if (/^###\s+/.test(trimmed) || /^\*\*[A-Z][A-Z\s&]+\*\*$/.test(trimmed) || /^[A-Z][A-Z\s&]{3,}$/.test(trimmed)) {
+      const label = trimmed.replace(/^#+\s+/, "").replace(/\*\*/g, "");
+      children.push(new Paragraph({
+        children: [new TextRun({ text: label, bold: true, size: 22, color: "555555", allCaps: true })],
+        spacing: { before: 240, after: 60 },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "DDDDDD" } },
+      }));
+      continue;
+    }
+    // Bullet
+    if (/^[-*•]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed)) {
+      const content = trimmed.replace(/^[-*•]\s+/, "").replace(/^\d+\.\s+/, "").replace(/\*\*(.+?)\*\*/g, "$1");
+      children.push(new Paragraph({
+        children: [new TextRun({ text: content, size: 22 })],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      }));
+      continue;
+    }
+    // Regular line
+    const content = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
+    children.push(new Paragraph({
+      children: [new TextRun({ text: content, size: 22 })],
+      spacing: { after: 60 },
+    }));
+  }
+
+  const doc = new Document({
+    sections: [{ properties: {}, children }],
+  });
+
+  return await Packer.toBuffer(doc);
+}
+
 // ─── Email helper ─────────────────────────────────────────────────────────────
-async function sendRoastEmail(toEmail, roastText) {
+async function sendRoastEmail(toEmail, roastText, docxBuffer) {
   if (!resend) {
     console.warn("RESEND_API_KEY not set — skipping email delivery");
     return;
@@ -128,12 +188,19 @@ async function sendRoastEmail(toEmail, roastText) {
 </body>
 </html>`;
 
-    await resend.emails.send({
+    const emailPayload = {
       from: FROM_EMAIL,
       to: toEmail,
       subject: "Your Resume Roast is Ready 🔥",
       html,
-    });
+    };
+    if (docxBuffer) {
+      emailPayload.attachments = [{
+        filename: "resume-rewritten.docx",
+        content: docxBuffer.toString("base64"),
+      }];
+    }
+    await resend.emails.send(emailPayload);
     console.log(`Roast email sent to ${toEmail}`);
   } catch (err) {
     console.error("Failed to send roast email:", err.message);
@@ -580,10 +647,14 @@ app.get("/api/result", async (req, res) => {
 
       stmtResult.run({ result, after_ats_score: afterScore, id: session_id });
 
-      // Send email if we have one
+      // Generate .docx from rewritten resume and send email
       const freshJob = stmtGet.get(session_id);
       if (freshJob?.email) {
-        await sendRoastEmail(freshJob.email, result);
+        let docxBuffer = null;
+        if (rewrittenResume) {
+          try { docxBuffer = await generateResumeDocx(rewrittenResume); } catch (e) { console.error("docx generation failed:", e.message); }
+        }
+        await sendRoastEmail(freshJob.email, result, docxBuffer);
       }
     } catch (err) {
       console.error("Claude API call failed:", err.message);
@@ -593,6 +664,26 @@ app.get("/api/result", async (req, res) => {
   })();
 });
 
+
+// ─── Download rewritten resume as .docx ──────────────────────────────────────
+app.get("/download-resume/:id", async (req, res) => {
+  const job = stmtGet.get(req.params.id);
+  if (!job || !job.paid || !job.result) return res.status(404).send("Not found");
+
+  // Extract THE FIX section
+  const fixMatch = job.result.match(/##\s*(?:3\.?\s*)?THE FIX[\s\S]*?\n([\s\S]*?)(?=\n##\s*(?:4\.?\s*)?TOP|\n##\s*(?:5\.?\s*)?YOUR|$)/i);
+  const rewrittenResume = fixMatch ? fixMatch[1].trim() : job.result;
+
+  try {
+    const buf = await generateResumeDocx(rewrittenResume);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    res.setHeader("Content-Disposition", "attachment; filename=\"resume-rewritten.docx\"");
+    res.send(buf);
+  } catch (err) {
+    console.error("docx download failed:", err.message);
+    res.status(500).send("Could not generate file");
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
