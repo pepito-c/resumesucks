@@ -476,6 +476,8 @@ app.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       allow_promotion_codes: true,
       billing_address_collection: "auto",
+      customer_creation: "if_required",
+      phone_number_collection: { enabled: false },
       success_url: `${req.protocol}://${req.get("host")}/result.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.protocol}://${req.get("host")}/`,
     });
