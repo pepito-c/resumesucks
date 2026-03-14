@@ -699,7 +699,7 @@
         <div class="field">
           <label for="resume">Your Resume</label>
           <div class="pdf-drop-zone" id="resumeDropZone">
-            <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." required></textarea>
+            <textarea id="resume" name="resume" placeholder="Paste your full resume text here..." maxlength="15000" required></textarea>
           </div>
           <div class="pdf-hint">
             <span class="pdf-hint-text">Paste your resume or drag &amp; drop a PDF</span>
@@ -710,7 +710,7 @@
         </div>
         <div class="field">
           <label for="jobDescription">Target Job Description</label>
-          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..."></textarea>
+          <textarea id="jobDescription" name="jobDescription" placeholder="Paste the job description you're applying for..." maxlength="8000"></textarea>
           <input type="url" id="jobUrl" class="url-input" placeholder="https://jobs.lever.co/company/job-id" style="display:none; margin-top:8px;">
           <div class="input-mode-toggle" style="margin-top:8px;">
             <button type="button" class="mode-btn active" id="modeText">Paste text</button>

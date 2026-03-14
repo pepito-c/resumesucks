@@ -377,8 +377,8 @@ app.post("/ats-score", async (req, res) => {
     }
   }
 
-  if (resume.length > 50000 || jobDescription.length > 50000) {
-    return res.status(400).json({ error: "Input too long. Please keep each field under 50,000 characters." });
+  if (resume.length > 15000 || jobDescription.length > 8000) {
+    return res.status(400).json({ error: "Resume must be under 15,000 characters and job description under 8,000. Please trim and try again." });
   }
 
   const { score, missing, present, total } = computeAtsScore(resume, jobDescription);
@@ -448,8 +448,8 @@ app.post("/create-checkout-session", async (req, res) => {
     }
   }
 
-  if (resume.length > 50000 || jobDescription.length > 50000) {
-    return res.status(400).json({ error: "Input too long. Please keep each field under 50,000 characters." });
+  if (resume.length > 15000 || jobDescription.length > 8000) {
+    return res.status(400).json({ error: "Resume must be under 15,000 characters and job description under 8,000. Please trim and try again." });
   }
 
   try {
