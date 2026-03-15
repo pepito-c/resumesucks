@@ -1,0 +1,37 @@
+# ResumeSucks.com
+
+> AI-powered resume critique and full rewrite. Brutal, honest, tailored to your target job.
+
+## What it does
+
+ResumeSucks.com analyzes your resume against a specific job posting and delivers:
+
+1. **Free ATS Score** — instant keyword matching analysis, no cost. Shows a score (0–100), missing keywords, present keywords, and risk level.
+2. **Full Roast ($9)** — paid report with 5 sections:
+   - ATS Analysis (keyword gaps, formatting issues)
+   - Brutal Roast (honest, no-sugarcoat critique)
+   - Full Rewrite (complete resume rewritten for the job)
+   - Your Wins (what's actually good)
+   - AI-Proof Case (how to stand out in an AI-saturated hiring market)
+
+## How to use it
+
+- Go to https://resumesucks.com
+- Paste or drag-drop your resume (PDF supported)
+- Paste the job posting URL or description
+- Get your free ATS score instantly
+- Pay $9 to unlock the full roast and rewrite
+
+## Key pages
+
+- https://resumesucks.com — Main app (upload resume + job)
+- https://resumesucks.com/result/:id — Results page (ATS score, full report)
+
+## Pricing
+
+- Free: ATS score
+- $9 one-time: Full report (no subscription)
+
+## Stack
+
+Node.js / Express, Claude AI (Anthropic), Stripe, SQLite, Resend

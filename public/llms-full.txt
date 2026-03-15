@@ -1,0 +1,100 @@
+# ResumeSucks.com — Full Documentation
+
+> AI-powered resume critique and full rewrite. Brutal, honest, tailored to your target job.
+
+## Product Overview
+
+ResumeSucks.com is a web application that takes your resume and a job posting, and tells you exactly why you're not getting interviews — then fixes it.
+
+The product has two tiers:
+
+### Free: ATS Score
+An instant keyword-matching analysis that shows:
+- A score from 0–100 based on how well your resume matches the job description
+- Missing keywords (terms in the job posting not found in your resume)
+- Present keywords (matches found)
+- Risk interpretation (Low / Medium / High / Critical)
+
+No AI cost. Instant. No payment required.
+
+### Paid ($9): Full Roast + Rewrite
+A comprehensive report powered by Claude AI with 5 sections:
+
+1. **ATS Analysis** — Detailed breakdown of keyword gaps, formatting problems, and ATS-unfriendly patterns
+2. **Brutal Roast** — Honest, unfiltered critique of the resume. No sugarcoating. Written like a blunt hiring manager.
+3. **Full Rewrite** — A complete rewrite of the resume, optimized for the specific job posting
+4. **Your Wins** — What's actually good about the resume (so you know what to keep)
+5. **AI-Proof Case** — How to position yourself to stand out in a hiring market flooded with AI-generated applications
+
+Payment is one-time via Stripe. No subscription. No account required.
+
+## User Flow
+
+1. User visits https://resumesucks.com
+2. Pastes resume text or drags/drops a PDF
+3. Pastes job posting URL or description text
+4. Clicks "Roast My Resume"
+5. Gets free ATS score immediately (no payment)
+6. Optional: pays $9 to unlock full report
+7. After payment, full report is generated asynchronously by Claude AI
+8. User polls for result; receives full report on the same page
+9. Optionally receives report by email
+
+## Pages
+
+### / (Home)
+- Main input form
+- Resume input (textarea or PDF drag-drop)
+- Job description input (URL or paste)
+- 3 sample roast examples shown (PM, SWE, Marketing roles)
+- All 5 sections previewed in sample roasts to set expectations
+
+### /result/:id
+- Shows ATS score immediately
+- Shows full report once paid + generated
+- Polling-based: frontend polls every 3s until result is ready
+- Download as .docx available once report is ready
+
+## API Endpoints
+
+- `POST /api/ats-check` — Submit resume + job for free ATS score. Returns `{ atsId, score, missingKeywords, presentKeywords }`.
+- `POST /api/checkout` — Create Stripe checkout session. Returns `{ url }` to redirect user to Stripe.
+- `GET /api/result/:id` — Poll for job result. Returns `{ status: "pending" | "done", result }`.
+- `POST /stripe/webhook` — Stripe webhook for payment confirmation. Triggers async AI generation.
+
+## Scoring Logic (ATS)
+
+Keywords are extracted from the job description using basic NLP (split, lowercase, filter stopwords). Each keyword found in the resume adds to the score. Score = (matched / total) * 100, rounded.
+
+Risk levels:
+- 80–100: Low risk
+- 60–79: Medium risk
+- 40–59: High risk
+- 0–39: Critical
+
+## Technology
+
+- **Backend:** Node.js + Express
+- **AI:** Anthropic Claude (claude-sonnet) — brutal career coach prompt with anti-fabrication rules
+- **Payments:** Stripe Checkout (one-time $9 payment)
+- **Database:** SQLite (via better-sqlite3) — jobs stored for 24h then auto-deleted
+- **Email:** Resend — optional report delivery by email
+- **File parsing:** pdf-parse for PDF resume extraction
+- **Document export:** docx library for .docx download
+- **Frontend:** Vanilla JS + HTML, dark theme, red accent color
+- **Hosting:** Railway
+
+## Privacy
+
+- Resumes are stored for 24 hours then automatically deleted
+- No user accounts required
+- Email is optional (only used to deliver the report)
+
+## Pricing
+
+$9 USD, one-time, no subscription.
+
+## Contact / Links
+
+- Live app: https://resumesucks.com
+- Built by: pepito-c (Pepito, AI co-founder)
