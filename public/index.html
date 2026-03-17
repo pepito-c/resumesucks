@@ -687,8 +687,8 @@
 
     <!-- ── Hero ──────────────────────────────────────────────────────────── -->
     <header>
-      <h1>Your Resume Is Getting <span>Filtered</span><br>Before Humans See It</h1>
-      <p class="subheadline">Get your free ATS score instantly — see exactly why you're getting ghosted.</p>
+      <h1>Find Out Exactly Why You're<br>Not Getting <span>Callbacks</span></h1>
+      <p class="subheadline">Paste your resume and the job you want. See exactly which keywords you're missing and get a brutally honest review of what's holding you back.</p>
     </header>
 
     <!-- ── Form ──────────────────────────────────────────────────────────── -->
@@ -723,8 +723,8 @@
       </div>
 
       <div class="cta-wrap">
-        <button type="submit" class="cta" id="ctaBtn">Get My Free ATS Score &rarr;</button>
-        <p class="trust-line">Instant. No payment. See your score + missing keywords in seconds.</p>
+        <button type="submit" class="cta" id="ctaBtn">See What's Missing &rarr;</button>
+        <p class="trust-line">Instant. No payment. See exactly which keywords you're missing in seconds.</p>
         <p class="privacy-line">🔒 Powered by AI &mdash; your resume is never stored, sold, or used for training. Deleted after your report is generated.</p>
       </div>
       <p class="error-msg" id="errorMsg"></p>
@@ -733,7 +733,7 @@
     <!-- ── Score Reveal (hidden until submit) ────────────────────────────── -->
     <div id="scoreReveal">
       <div class="score-header">
-        <h2>Your ATS Match Score</h2>
+        <h2>Your Keyword Gap Analysis</h2>
         <span class="score-number-big" id="scoreDisplay">0%</span>
         <p class="score-interpretation" id="scoreInterpretation"></p>
       </div>
@@ -809,7 +809,7 @@
         <p class="candidate-note">Candidate: Alex Johnson &nbsp;·&nbsp; Target role: Senior Product Manager, Series B SaaS startup</p>
 
         <div class="ats-score-callout">
-          <span class="score-number">ATS Match Score: 58%</span>
+          <span class="score-number">Keyword Match: 58%</span>
           <span class="score-label">You're getting through about half the time — the job posting is loaded with terms your resume doesn't mention once</span>
         </div>
         <p class="ats-title">📊 ATS Keyword Analysis</p>
@@ -909,7 +909,7 @@ SENIOR PRODUCT MANAGER — Acme Corp (2022–present)
         <p class="candidate-note">Candidate: Jordan Lee &nbsp;·&nbsp; Target role: Senior Software Engineer, early-stage startup</p>
 
         <div class="ats-score-callout">
-          <span class="score-number">ATS Match Score: 51%</span>
+          <span class="score-number">Keyword Match: 51%</span>
           <span class="score-label">Just over half — the JD is dense with infrastructure terms your resume never touches, even though you've done this work</span>
         </div>
         <p class="ats-title">📊 ATS Keyword Analysis</p>
@@ -1009,7 +1009,7 @@ SENIOR SOFTWARE ENGINEER — TechCorp (2022–present)
         <p class="candidate-note">Candidate: Sam Rivera &nbsp;·&nbsp; Target role: Head of Marketing, growth-stage startup</p>
 
         <div class="ats-score-callout">
-          <span class="score-number">ATS Match Score: 44%</span>
+          <span class="score-number">Keyword Match: 44%</span>
           <span class="score-label">Well under half — this is a demand gen-heavy role and your resume reads like a brand/comms resume</span>
         </div>
         <p class="ats-title">📊 ATS Keyword Analysis</p>
@@ -1268,7 +1268,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
         if (!jobRaw) {
           errorMsg.textContent = "Please add a job URL, description, or target role.";
           btn.disabled = false;
-          btn.textContent = "Get My Free ATS Score →";
+          btn.textContent = "See What's Missing →";
           return;
         } else if (isUrl(jobRaw)) {
           payload.jobUrl = jobRaw;
@@ -1316,7 +1316,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
         errorMsg.textContent = err.message;
       } finally {
         btn.disabled = false;
-        btn.textContent = "Get My Free ATS Score \u2192";
+        btn.textContent = "See What's Missing →";
       }
     });
 
