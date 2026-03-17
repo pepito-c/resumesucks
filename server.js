@@ -267,7 +267,7 @@ app.post(
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ─── ATS Score computation (no Claude, no API cost) ──────────────────────────
+// ─── ATS Score computation — Claude Haiku extracts keywords, we do the matching ─
 
 const STOPWORDS = new Set([
   // Articles, conjunctions, prepositions
@@ -445,134 +445,57 @@ function resumeContains(resumeLower, keyword) {
   return false;
 }
 
-function computeAtsScore(resume, jobDescription) {
-  // Strip URLs/emails from resume too so they don't create false matches
+// Extract keywords from job description using Claude Haiku (cheap + accurate)
+async function extractKeywordsWithHaiku(jobDescription) {
+  const msg = await anthropic.messages.create({
+    model: "claude-haiku-4-5",
+    max_tokens: 512,
+    messages: [{
+      role: "user",
+      content: `Extract the most important ATS keywords from this job description. Focus on:
+- Specific technical skills, tools, and technologies
+- Domain-specific methodologies and frameworks  
+- Certifications and qualifications
+- Job-specific hard skills (not generic words like "experience", "skills", "team")
+
+Return ONLY a JSON array of strings, no explanation. Maximum 15 keywords. Example: ["Python", "machine learning", "AWS", "product roadmap", "Salesforce"]
+
+Job description:
+${jobDescription.slice(0, 4000)}`
+    }]
+  });
+
+  const text = msg.content[0].text.trim();
+  // Parse JSON array from response, handle any wrapping
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  const keywords = JSON.parse(match[0]);
+  return Array.isArray(keywords) ? keywords.map(k => k.toLowerCase().trim()) : [];
+}
+
+async function computeAtsScore(resume, jobDescription) {
+  // Strip URLs/emails so they don't pollute matching
   const resumeClean = resume
     .replace(/https?:\/\/[^\s]+/gi, " ")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ")
-    .replace(/\b\w+\.(com|io|ai|co|org|net|world|app|dev|ly|to)\b/gi, " ");
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ");
   const resumeLower = resumeClean.toLowerCase();
 
-  // Detect proper nouns in JD (capitalized words that aren't sentence-starts)
-  // Used to filter out company/person names from missing keywords
-  const properNounSet = new Set();
-  const sentences = jobDescription.split(/(?<=[.!?])\s+/);
-  for (const sentence of sentences) {
-    const words = sentence.trim().split(/\s+/);
-    for (let i = 1; i < words.length; i++) { // skip first word (sentence start)
-      const w = words[i];
-      if (/^[A-Z][a-z]{2,}$/.test(w) && !TECH_WHITELIST.has(w.toLowerCase())) {
-        properNounSet.add(w.toLowerCase());
-      }
-    }
+  // Use Claude Haiku to extract meaningful keywords from the JD
+  // Haiku is tiny/cheap (~$0.0001 per call) but understands any industry
+  let keywords = [];
+  try {
+    keywords = await extractKeywordsWithHaiku(jobDescription);
+  } catch (err) {
+    console.error("Haiku keyword extraction failed:", err.message);
+    // Return a graceful degraded result rather than crash
+    return { score: 0, missing: [], present: [], total: 0 };
   }
 
-  // Strip URLs and email addresses before processing — prevents ".world", "com", etc.
-  const jdStripped = jobDescription
-    .replace(/https?:\/\/[^\s]+/gi, " ")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ")
-    .replace(/\b\w+\.(com|io|ai|co|org|net|world|app|dev|ly|to)\b/gi, " ");
-
-  const jdClean = jdStripped.toLowerCase().replace(/[^a-z0-9\s+#/-]/g, " ");
-
-  // Tokenize job description into words
-  const rawWords = jdClean
-    .split(/\s+/)
-    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
-    .filter(w => w.length >= 3 && !STOPWORDS.has(w) && !isJunkWord(w) && !properNounSet.has(w));
-
-  // Count word frequency in JD
-  const wordFreq = {};
-  for (const w of rawWords) {
-    wordFreq[w] = (wordFreq[w] || 0) + 1;
+  if (keywords.length === 0) {
+    return { score: 0, missing: [], present: [], total: 0 };
   }
 
-  // Unigrams qualify if:
-  //   (a) in the tech whitelist (short known terms like aws, sql, react), OR
-  //   (b) appear 3+ times in JD AND are 6+ characters AND not stopword/junk
-  // This handles any industry: "campaigns", "attribution", "compliance",
-  // "forecasting", "underwriting" etc. all pass naturally without a hardcoded list.
-  const unigrams = Object.keys(wordFreq).filter(w =>
-    TECH_WHITELIST.has(w) ||
-    (wordFreq[w] >= 3 && w.length >= 6)
-  );
-
-  // Known tech/career phrases — always treated as a unit if mentioned even once
-  const KNOWN_PHRASES = new Set([
-    // Engineering
-    "system design","distributed systems","machine learning","deep learning",
-    "natural language processing","computer vision","data structures","algorithms",
-    "large language models","retrieval augmented generation","vector database",
-    "ci/cd","ci cd","continuous integration","continuous deployment","continuous delivery",
-    "test driven development","behavior driven development","agile methodology","scrum master",
-    "microservices architecture","service oriented","event driven","domain driven",
-    "rest api","graphql","api design","system architecture","technical leadership",
-    "full stack","front end","back end","devops","mlops","data pipeline","data warehouse",
-    "cloud infrastructure","cloud native","infrastructure as code","site reliability",
-    "on call","incident response","performance optimization","load balancing",
-    "engineering manager","software engineer","staff engineer","principal engineer",
-    "data scientist","data engineer","machine learning engineer","platform engineer",
-    "prompt engineering","fine tuning","model training","model deployment",
-    // Product
-    "product roadmap","go to market","product led growth","product market fit",
-    "user research","user testing","a/b testing","feature flagging","north star metric",
-    "product manager","product owner","product strategy","product analytics",
-    // Business/ops
-    "churn reduction","customer success","customer acquisition","customer retention",
-    "demand generation","pipeline attribution","revenue growth","cost reduction",
-    "p&l responsibility","operational efficiency","profit and loss","gross margin",
-    "marketing qualified lead","sales qualified lead","account executive",
-    "cross functional","stakeholder management","executive communication",
-    "brand awareness","content strategy","social media","email marketing",
-    "search engine optimization","pay per click","conversion rate","growth hacking",
-    "project management","change management","people management","team building",
-    "venture capital","private equity","series a","series b",
-  ]);
-
-  // Extract 2-gram and 3-gram phrases from JD
-  const jdWords = jdClean.split(/\s+/)
-    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
-    .filter(w => w.length > 0);
-  const phraseFreq = {};
-  for (let i = 0; i < jdWords.length - 1; i++) {
-    const w1 = jdWords[i], w2 = jdWords[i + 1];
-    if (!STOPWORDS.has(w1) && !STOPWORDS.has(w2) && w1.length >= 3 && w2.length >= 3
-        && !isJunkWord(w1) && !isJunkWord(w2)
-        && !properNounSet.has(w1) && !properNounSet.has(w2)) {
-      const phrase = `${w1} ${w2}`;
-      phraseFreq[phrase] = (phraseFreq[phrase] || 0) + 1;
-    }
-    if (i < jdWords.length - 2) {
-      const w3 = jdWords[i + 2];
-      if (!STOPWORDS.has(w1) && !STOPWORDS.has(w3) && w1.length >= 3 && w2.length >= 3 && w3.length >= 3
-          && !isJunkWord(w1) && !isJunkWord(w3)
-          && !properNounSet.has(w1) && !properNounSet.has(w3)) {
-        const phrase3 = `${w1} ${w2} ${w3}`;
-        phraseFreq[phrase3] = (phraseFreq[phrase3] || 0) + 1;
-      }
-    }
-  }
-
-  // Collect multi-word phrases: appear 2+ times OR in known list
-  const multiPhrases = Object.entries(phraseFreq)
-    .filter(([phrase, freq]) => freq >= 2 || KNOWN_PHRASES.has(phrase))
-    .map(([phrase]) => phrase);
-
-  // Deduplicate: phrases take priority, drop constituent unigrams they cover
-  const coveredByPhrase = new Set();
-  for (const phrase of multiPhrases) {
-    phrase.split(" ").forEach(w => coveredByPhrase.add(w));
-  }
-
-  // Final keyword list: multi-word phrases + qualifying unigrams not covered by a phrase
-  const candidates = [
-    ...multiPhrases,
-    ...unigrams.filter(w => !coveredByPhrase.has(w)),
-  ];
-
-  const keywords = [...new Set(candidates)];
-
-  // Check presence in resume (with synonym matching)
+  // Check which keywords are present/missing in the resume (with synonym matching)
   const present = [];
   const missing = [];
 
@@ -587,24 +510,10 @@ function computeAtsScore(resume, jobDescription) {
   const total = keywords.length;
   const score = total === 0 ? 0 : Math.round((present.length / total) * 100);
 
-  // Sort missing by JD frequency (most-mentioned first) for top 10
-  const sortedMissing = missing.sort((a, b) => {
-    const freqA = a.includes(" ") ? (phraseFreq[a] || 0) : (wordFreq[a] || 0);
-    const freqB = b.includes(" ") ? (phraseFreq[b] || 0) : (wordFreq[b] || 0);
-    return freqB - freqA;
-  }).slice(0, 10);
-
-  // Top 5 present (by JD frequency)
-  const sortedPresent = present.sort((a, b) => {
-    const freqA = a.includes(" ") ? (phraseFreq[a] || 0) : (wordFreq[a] || 0);
-    const freqB = b.includes(" ") ? (phraseFreq[b] || 0) : (wordFreq[b] || 0);
-    return freqB - freqA;
-  }).slice(0, 5);
-
   return {
     score,
-    missing: sortedMissing,
-    present: sortedPresent,
+    missing: missing.slice(0, 10),
+    present: present.slice(0, 5),
     total,
   };
 }
@@ -625,7 +534,7 @@ function stripHtml(html) {
     .trim();
 }
 
-// Free ATS score — no Claude, no payment
+// Free ATS score — Claude Haiku extracts keywords, we match against resume
 app.post("/ats-score", async (req, res) => {
   const { resume, jobDescription: jobDescriptionRaw, jobUrl } = req.body;
 
@@ -663,7 +572,7 @@ app.post("/ats-score", async (req, res) => {
     return res.status(400).json({ error: "Resume must be under 15,000 characters and job description under 8,000. Please trim and try again." });
   }
 
-  const { score, missing, present, total } = computeAtsScore(resume, jobDescription);
+  const { score, missing, present, total } = await computeAtsScore(resume, jobDescription);
 
   const id = require("crypto").randomBytes(16).toString("hex");
 
@@ -863,7 +772,7 @@ You are a savage but brilliant career coach who has seen thousands of resumes an
       // Compute after score if we have the rewritten resume and job description
       let afterScore = null;
       if (rewrittenResume && job.job_description) {
-        const afterAts = computeAtsScore(rewrittenResume, job.job_description);
+        const afterAts = await computeAtsScore(rewrittenResume, job.job_description);
         afterScore = afterAts.score;
       }
 
