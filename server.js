@@ -445,77 +445,61 @@ function resumeContains(resumeLower, keyword) {
   return false;
 }
 
-// Extract keywords from job description using Claude Haiku (cheap + accurate)
-async function extractKeywordsWithHaiku(jobDescription) {
-  const msg = await anthropic.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 512,
-    messages: [{
-      role: "user",
-      content: `Extract the most important ATS keywords from this job description. Focus on:
-- Specific technical skills, tools, and technologies
-- Domain-specific methodologies and frameworks  
-- Certifications and qualifications
-- Job-specific hard skills (not generic words like "experience", "skills", "team")
+// Use Claude Haiku to extract keywords AND semantically match them against the resume
+// This handles cases like "LLM" matching "llm-native features", "Claude API" matching "claude", etc.
+async function computeAtsScore(resume, jobDescription) {
+  try {
+    const msg = await anthropic.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 600,
+      messages: [{
+        role: "user",
+        content: `You are an ATS (Applicant Tracking System) analyzer. Given a job description and a resume, identify the most important keywords/skills from the job description and determine which ones are present or absent in the resume.
 
-Return ONLY a JSON array of strings, no explanation. Maximum 15 keywords. Example: ["Python", "machine learning", "AWS", "product roadmap", "Salesforce"]
+Use semantic matching — "LLM" in a resume counts as matching "llm-native features", "prompt engineering experience" counts as matching "prompt engineering", "built with Claude API" counts as matching "claude", etc.
 
-Job description:
-${jobDescription.slice(0, 4000)}`
-    }]
-  });
-
-  const text = msg.content[0].text.trim();
-  // Parse JSON array from response, handle any wrapping
-  const match = text.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  const keywords = JSON.parse(match[0]);
-  return Array.isArray(keywords) ? keywords.map(k => k.toLowerCase().trim()) : [];
+Return ONLY valid JSON in this exact format, no explanation:
+{
+  "present": ["keyword1", "keyword2"],
+  "missing": ["keyword3", "keyword4"]
 }
 
-async function computeAtsScore(resume, jobDescription) {
-  // Strip URLs/emails so they don't pollute matching
-  const resumeClean = resume
-    .replace(/https?:\/\/[^\s]+/gi, " ")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ");
-  const resumeLower = resumeClean.toLowerCase();
+Rules:
+- Extract 10-15 total keywords from the job description
+- Only include specific skills, tools, technologies, methodologies, domain terms
+- No generic words (experience, skills, team, work, etc.)
+- present = keywords that ARE in the resume (exact or semantic match)
+- missing = keywords that are NOT in the resume at all
+- Keep keyword labels concise and readable (e.g. "prompt engineering" not "strong prompt engineering skills")
 
-  // Use Claude Haiku to extract meaningful keywords from the JD
-  // Haiku is tiny/cheap (~$0.0001 per call) but understands any industry
-  let keywords = [];
-  try {
-    keywords = await extractKeywordsWithHaiku(jobDescription);
+JOB DESCRIPTION:
+${jobDescription.slice(0, 3000)}
+
+RESUME:
+${resume.slice(0, 3000)}`
+      }]
+    });
+
+    const text = msg.content[0].text.trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return { score: 0, missing: [], present: [], total: 0 };
+
+    const parsed = JSON.parse(match[0]);
+    const present = Array.isArray(parsed.present) ? parsed.present.map(k => k.toLowerCase().trim()) : [];
+    const missing = Array.isArray(parsed.missing) ? parsed.missing.map(k => k.toLowerCase().trim()) : [];
+    const total = present.length + missing.length;
+    const score = total === 0 ? 0 : Math.round((present.length / total) * 100);
+
+    return {
+      score,
+      missing: missing.slice(0, 10),
+      present: present.slice(0, 5),
+      total,
+    };
   } catch (err) {
-    console.error("Haiku keyword extraction failed:", err.message);
-    // Return a graceful degraded result rather than crash
+    console.error("Haiku ATS scoring failed:", err.message);
     return { score: 0, missing: [], present: [], total: 0 };
   }
-
-  if (keywords.length === 0) {
-    return { score: 0, missing: [], present: [], total: 0 };
-  }
-
-  // Check which keywords are present/missing in the resume (with synonym matching)
-  const present = [];
-  const missing = [];
-
-  for (const kw of keywords) {
-    if (resumeContains(resumeLower, kw)) {
-      present.push(kw);
-    } else {
-      missing.push(kw);
-    }
-  }
-
-  const total = keywords.length;
-  const score = total === 0 ? 0 : Math.round((present.length / total) * 100);
-
-  return {
-    score,
-    missing: missing.slice(0, 10),
-    present: present.slice(0, 5),
-    total,
-  };
 }
 
 // ─── HTML stripping helper ────────────────────────────────────────────────────
