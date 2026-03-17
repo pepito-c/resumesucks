@@ -723,7 +723,7 @@
       </div>
 
       <div class="cta-wrap">
-        <button type="submit" class="cta" id="ctaBtn">See What's Missing &rarr;</button>
+        <button type="submit" class="cta" id="ctaBtn">See What's Missing — <span style="text-decoration:underline;">Free</span> &rarr;</button>
         <p class="trust-line">Instant. No payment. See exactly which keywords you're missing in seconds.</p>
         <p class="privacy-line">🔒 Powered by AI &mdash; your resume is never stored, sold, or used for training. Deleted after your report is generated.</p>
       </div>
@@ -1268,7 +1268,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
         if (!jobRaw) {
           errorMsg.textContent = "Please add a job URL, description, or target role.";
           btn.disabled = false;
-          btn.textContent = "See What's Missing →";
+          btn.textContent = "See What's Missing — Free →";
           return;
         } else if (isUrl(jobRaw)) {
           payload.jobUrl = jobRaw;
@@ -1316,7 +1316,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
         errorMsg.textContent = err.message;
       } finally {
         btn.disabled = false;
-        btn.textContent = "See What's Missing →";
+        btn.textContent = "See What's Missing — Free →";
       }
     });
 
