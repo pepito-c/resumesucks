@@ -708,9 +708,9 @@
 
       <!-- Step 2 — Job (optional) -->
       <div class="form-step">
-        <span class="step-label">Step 2 — The Job <span style="font-weight:400;color:#555;font-size:0.8rem;">(optional)</span></span>
-        <textarea id="jobSmartInput" placeholder="Paste a job URL, the full job description, or just the role you're targeting — e.g. &quot;Senior PM at a fintech startup&quot;" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
-        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Any format works. We'll figure out the rest.</p>
+        <span class="step-label">Step 2 — The Job</span>
+        <textarea id="jobSmartInput" placeholder="Paste a job URL, the full job description, or just the role — e.g. &quot;Senior PM at a fintech startup&quot;" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
+        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Job URL, full description, or just the role title — any format works.</p>
         <!-- Hidden fields — preserved for JS form submit compatibility -->
         <input type="url" id="jobUrl" style="display:none;">
         <textarea id="jobDescription" name="jobDescription" maxlength="8000" style="display:none;"></textarea>
@@ -1260,8 +1260,10 @@ HEAD OF MARKETING — BrandCo (2023–present)
       try {
         const payload = { resume };
         if (!jobRaw) {
-          // No job info — score against generic "strong resume" baseline
-          payload.targetRole = "general professional role";
+          errorMsg.textContent = "Please add a job URL, description, or target role.";
+          btn.disabled = false;
+          btn.textContent = "Get My Free ATS Score →";
+          return;
         } else if (isUrl(jobRaw)) {
           payload.jobUrl = jobRaw;
         } else if (jobRaw.length > 300) {
