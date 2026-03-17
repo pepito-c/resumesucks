@@ -421,7 +421,12 @@ function resumeContains(resumeLower, keyword) {
 }
 
 function computeAtsScore(resume, jobDescription) {
-  const resumeLower = resume.toLowerCase();
+  // Strip URLs/emails from resume too so they don't create false matches
+  const resumeClean = resume
+    .replace(/https?:\/\/[^\s]+/gi, " ")
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ")
+    .replace(/\b\w+\.(com|io|ai|co|org|net|world|app|dev|ly|to)\b/gi, " ");
+  const resumeLower = resumeClean.toLowerCase();
 
   // Detect proper nouns in JD (capitalized words that aren't sentence-starts)
   // Used to filter out company/person names from missing keywords
@@ -437,7 +442,13 @@ function computeAtsScore(resume, jobDescription) {
     }
   }
 
-  const jdClean = jobDescription.toLowerCase().replace(/[^a-z0-9\s+#./-]/g, " ");
+  // Strip URLs and email addresses before processing — prevents ".world", "com", etc.
+  const jdStripped = jobDescription
+    .replace(/https?:\/\/[^\s]+/gi, " ")
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ")
+    .replace(/\b\w+\.(com|io|ai|co|org|net|world|app|dev|ly|to)\b/gi, " ");
+
+  const jdClean = jdStripped.toLowerCase().replace(/[^a-z0-9\s+#/-]/g, " ");
 
   // Tokenize job description into words
   const rawWords = jdClean
@@ -451,10 +462,10 @@ function computeAtsScore(resume, jobDescription) {
     wordFreq[w] = (wordFreq[w] || 0) + 1;
   }
 
-  // Unigrams must appear 2+ times in JD OR be in the tech whitelist
-  const unigrams = Object.keys(wordFreq).filter(w =>
-    wordFreq[w] >= 2 || TECH_WHITELIST.has(w)
-  );
+  // Unigrams ONLY qualify if they are in the tech whitelist.
+  // Generic English words that happen to appear frequently are NOT ATS keywords.
+  // Multi-word phrases handle everything else.
+  const unigrams = Object.keys(wordFreq).filter(w => TECH_WHITELIST.has(w));
 
   // Known tech/career phrases — always treated as a unit if mentioned even once
   const KNOWN_PHRASES = new Set([
