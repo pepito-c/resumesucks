@@ -523,12 +523,29 @@ function stripHtml(html) {
     .trim();
 }
 
+// Generate a synthetic job description from a target role string using Haiku
+async function generateSyntheticJD(targetRole) {
+  const msg = await anthropic.messages.create({
+    model: "claude-haiku-4-5",
+    max_tokens: 600,
+    messages: [{
+      role: "user",
+      content: `Write a realistic, concise job description for the following role: "${targetRole}"
+
+Include: key responsibilities, required skills and technologies, and qualifications.
+Keep it to 200-250 words. Write it like a real job posting, not a template.
+No company name, no salary, no benefits — just the role requirements.`
+    }]
+  });
+  return msg.content[0].text.trim();
+}
+
 // Free ATS score — Claude Haiku extracts keywords, we match against resume
 app.post("/ats-score", async (req, res) => {
-  const { resume, jobDescription: jobDescriptionRaw, jobUrl } = req.body;
+  const { resume, jobDescription: jobDescriptionRaw, jobUrl, targetRole } = req.body;
 
-  if (!resume || (!jobDescriptionRaw && !jobUrl)) {
-    return res.status(400).json({ error: "Resume and job description (or URL) are required." });
+  if (!resume || (!jobDescriptionRaw && !jobUrl && !targetRole)) {
+    return res.status(400).json({ error: "Resume and a job description, URL, or target role are required." });
   }
 
   let jobDescription = jobDescriptionRaw || "";
@@ -554,6 +571,17 @@ app.post("/ats-score", async (req, res) => {
       return res.status(422).json({
         error: "Couldn't fetch that URL. Please paste the job description as text instead.",
       });
+    }
+  }
+
+  // If no JD provided, generate a synthetic one from the target role
+  if (!jobDescription && targetRole) {
+    try {
+      jobDescription = await generateSyntheticJD(targetRole);
+      console.log(`Generated synthetic JD for target role: "${targetRole}"`);
+    } catch (err) {
+      console.error("Failed to generate synthetic JD:", err.message);
+      return res.status(500).json({ error: "Failed to analyze target role. Please paste a job description instead." });
     }
   }
 
