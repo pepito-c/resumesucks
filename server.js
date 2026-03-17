@@ -336,6 +336,31 @@ const STOPWORDS = new Set([
   "please","submit","send","equal","employer","benefits","compensation","salary","pay",
   "bonus","equity","vacation","pto","perks","culture","mission","vision","values",
   "about","office","location","travel","visa","sponsorship","authorization",
+  // Words that appear constantly in JDs but are NEVER real ATS keywords
+  "experience","experiences","experienced","without","within","including","following",
+  "working","through","between","during","against","toward","towards","beside",
+  "beside","besides","despite","except","instead","outside","inside","around",
+  "production","products","product","service","services","business","businesses",
+  "industry","industries","sector","market","markets","space","spaces",
+  "someone","everyone","anyone","something","everything","anything","nothing",
+  "someone","ourselves","yourself","together","another","others","whether",
+  "specific","general","various","certain","possible","available","existing",
+  "different","similar","standard","common","normal","regular","typical","usual",
+  "technical","professional","personal","additional","potential","original",
+  "current","future","recent","early","latest","modern","advanced","basic",
+  "initial","final","primary","secondary","tertiary","respective","following",
+  "ensure","ensures","ensuring","provide","provides","provided","providing",
+  "across","around","behind","beneath","alongside","regarding","concerning",
+  "helping","making","taking","giving","finding","building","leading","driving",
+  "growing","staying","keeping","running","setting","getting","putting","holding",
+  "skills","talent","talents","hiring","culture","impact","growth","success",
+  "quality","delivery","execution","ownership","accountability","transparency",
+  "passion","energy","mindset","attitude","approach","thinking","learning",
+  "design","designs","designer","designing","research","researcher","researching",
+  "report","reports","reporting","analysis","analyses","analyst","analyzing",
+  "review","reviews","reviewer","reviewing","planning","plans","planner",
+  "writing","written","writer","reading","speaker","speaking","presenter",
+  "testing","tester","testing","debugging","troubleshoot","troubleshooting",
 ]);
 
 // Short tech terms that should be treated as keywords even though they're short
@@ -469,7 +494,7 @@ function computeAtsScore(resume, jobDescription) {
   // "forecasting", "underwriting" etc. all pass naturally without a hardcoded list.
   const unigrams = Object.keys(wordFreq).filter(w =>
     TECH_WHITELIST.has(w) ||
-    (wordFreq[w] >= 3 && w.length >= 6)
+    (wordFreq[w] >= 3 && w.length >= 8)
   );
 
   // Known tech/career phrases — always treated as a unit if mentioned even once
