@@ -709,18 +709,11 @@
       <!-- Step 2 — Job (optional) -->
       <div class="form-step">
         <span class="step-label">Step 2 — The Job <span style="font-weight:400;color:#555;font-size:0.8rem;">(optional)</span></span>
-        <textarea id="jobSmartInput" placeholder="Paste the job posting URL or the full job description — we'll figure it out" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
-        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Works with LinkedIn, Indeed, Lever, Greenhouse, or any job URL. Or just paste the text directly.</p>
-        <!-- Target role fallback — shown when no JD is provided -->
-        <div id="targetRoleWrap" style="display:none; margin-top:12px;">
-          <input type="text" id="targetRole" placeholder="What role are you targeting? e.g. Senior Product Manager at a startup" maxlength="200" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#e0e0e0;font-size:0.95rem;box-sizing:border-box;">
-          <p style="font-size:0.78rem;color:#555;margin-top:6px;">We'll use this to generate a relevant job description and score your resume against it.</p>
-        </div>
+        <textarea id="jobSmartInput" placeholder="Paste a job URL, the full job description, or just the role you're targeting — e.g. &quot;Senior PM at a fintech startup&quot;" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
+        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Any format works. We'll figure out the rest.</p>
         <!-- Hidden fields — preserved for JS form submit compatibility -->
         <input type="url" id="jobUrl" style="display:none;">
         <textarea id="jobDescription" name="jobDescription" maxlength="8000" style="display:none;"></textarea>
-        <button type="button" class="mode-btn" id="modeText" style="display:none;">Paste text</button>
-        <button type="button" class="mode-btn active" id="modeUrl" style="display:none;">Paste URL</button>
       </div>
 
       <div class="cta-wrap">
@@ -1201,8 +1194,7 @@ HEAD OF MARKETING — BrandCo (2023–present)
     });
 
     // ── Job input: single smart box — auto-detects URL vs text ──────────
-    const modeTextBtn    = document.getElementById("modeText");
-    const modeUrlBtn     = document.getElementById("modeUrl");
+
     const jobDescTA      = document.getElementById("jobDescription");
     const jobUrlInput    = document.getElementById("jobUrl");
     const jobSmartInput  = document.getElementById("jobSmartInput");
@@ -1249,30 +1241,15 @@ HEAD OF MARKETING — BrandCo (2023–present)
       });
     }
 
-    // Show target role field when job input is empty
-    jobSmartInput.addEventListener("input", () => {
-      const targetRoleWrap = document.getElementById("targetRoleWrap");
-      targetRoleWrap.style.display = jobSmartInput.value.trim() ? "none" : "block";
-    });
-    // Show on load if empty
-    document.getElementById("targetRoleWrap").style.display = "block";
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorMsg.textContent = "";
 
       const resume = document.getElementById("resume").value.trim();
       const jobRaw = jobSmartInput.value.trim();
-      const targetRole = document.getElementById("targetRole").value.trim();
-      const jobUrl = isUrl(jobRaw) ? jobRaw : "";
-      const jobDescription = isUrl(jobRaw) ? "" : jobRaw;
 
       if (!resume) {
         errorMsg.textContent = "Please add your resume.";
-        return;
-      }
-      if (!jobRaw && !targetRole) {
-        errorMsg.textContent = "Please add a job posting or tell us what role you're targeting.";
         return;
       }
 
@@ -1282,9 +1259,18 @@ HEAD OF MARKETING — BrandCo (2023–present)
 
       try {
         const payload = { resume };
-        if (jobUrl) payload.jobUrl = jobUrl;
-        else if (jobDescription) payload.jobDescription = jobDescription;
-        else payload.targetRole = targetRole;
+        if (!jobRaw) {
+          // No job info — score against generic "strong resume" baseline
+          payload.targetRole = "general professional role";
+        } else if (isUrl(jobRaw)) {
+          payload.jobUrl = jobRaw;
+        } else if (jobRaw.length > 300) {
+          // Long text = full job description
+          payload.jobDescription = jobRaw;
+        } else {
+          // Short text = target role (e.g. "Senior PM at a fintech startup")
+          payload.targetRole = jobRaw;
+        }
 
         const res = await fetch("/ats-score", {
           method: "POST",
