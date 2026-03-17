@@ -89,7 +89,30 @@ const generating = new Set();
 // ─── Generate .docx from resume markdown text ────────────────────────────────
 async function generateResumeDocx(resumeText) {
   const lines = resumeText.split("\n");
-  const children = [];
+  const children = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "⚠️ DRAFT — Review before sending.",
+          bold: true,
+          size: 20,
+          color: "CC7700",
+        }),
+        new TextRun({
+          text: " This resume was rewritten by AI based on your original content. Read it carefully and remove anything that doesn't accurately reflect your real experience.",
+          size: 20,
+          color: "CC7700",
+        }),
+      ],
+      spacing: { after: 200 },
+      border: {
+        top:    { style: BorderStyle.SINGLE, size: 6, color: "CC7700" },
+        bottom: { style: BorderStyle.SINGLE, size: 6, color: "CC7700" },
+        left:   { style: BorderStyle.SINGLE, size: 6, color: "CC7700" },
+        right:  { style: BorderStyle.SINGLE, size: 6, color: "CC7700" },
+      },
+    }),
+  ];
 
   let nameFound = false;
   for (const line of lines) {
