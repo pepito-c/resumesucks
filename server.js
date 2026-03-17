@@ -270,44 +270,180 @@ app.use(express.static(path.join(__dirname, "public")));
 // ─── ATS Score computation (no Claude, no API cost) ──────────────────────────
 
 const STOPWORDS = new Set([
-  "a","an","the","and","or","but","is","are","was","were","be","been","being",
+  // Articles, conjunctions, prepositions
+  "a","an","the","and","or","but","nor","so","yet","for","both","either","neither",
+  "is","are","was","were","be","been","being","am",
   "have","has","had","do","does","did","will","would","shall","should","may",
   "might","must","can","could","to","of","in","on","at","by","for","with",
   "about","against","between","into","through","during","before","after",
   "above","below","from","up","down","out","off","over","under","again",
-  "further","then","once","here","there","when","where","why","how","all",
-  "both","each","few","more","most","other","some","such","no","not","only",
-  "own","same","so","than","too","very","just","that","this","these","those",
-  "i","we","you","he","she","it","they","me","him","her","us","them","who",
-  "which","what","as","if","while","although","because","since","unless",
-  "their","our","your","his","its","my","any","well","also","using","work",
-  "working","use","used","ensure","help","strong","ability","excellent","great",
-  "good","new","high","large","key","years","experience","position","role",
-  "join","team","make","within","across","including","support","provide",
-  "develop","build","create","manage","lead","drive","define","own","run",
-  "get","set","stay","grow","take","bring","put","keep",
-  // Common job posting filler words
-  "looking","seeking","required","must","need","needs","candidate","candidates",
-  "ideal","preferred","plus","minimum","least","one","two","three","four","five",
-  "senior","junior","mid","level","based","remote","hybrid","onsite","full","time",
-  "part","contract","permanent","opportunity","join","company","team","startup",
-  "etc","apply","applicants","applicant","responsible","responsibilities",
+  "further","then","once","here","there","when","where","why","how",
+  "all","both","each","few","more","most","other","some","such",
+  "no","not","only","own","same","so","than","too","very","just",
+  "that","this","these","those","such","which","what","who","whom","whose",
+  "i","we","you","he","she","it","they","me","him","her","us","them",
+  "as","if","while","although","because","since","unless","until","though",
+  "their","our","your","his","its","my","any","well","also",
+  // Generic verbs (filler in JDs)
+  "use","used","using","work","working","works","ensure","help","helps","helping",
+  "make","makes","making","build","builds","building","create","creates","creating",
+  "develop","develops","developing","manage","manages","managing","lead","leads","leading",
+  "drive","drives","driving","define","defines","defining","run","runs","running",
+  "get","gets","getting","set","sets","setting","stay","stays","grow","grows","growing",
+  "take","takes","taking","bring","brings","bringing","put","puts","keep","keeps",
+  "join","joins","joining","provide","provides","providing","support","supports","supporting",
+  "include","includes","including","apply","applies","applying","maintain","maintains",
+  "maintain","review","reviews","reviewing","report","reports","reporting","perform","performs",
+  "want","wants","seeking","looking","find","finds","finding","know","knows","knowing",
+  "need","needs","needing","require","requires","requiring","expect","expects",
+  "give","gives","giving","hold","holds","holding","communicate","communicates",
+  "collaborate","collaborates","partner","partners","partnering","deliver","delivers","delivering",
+  // Adverbs (almost never meaningful ATS keywords)
+  "quickly","directly","effectively","efficiently","successfully","consistently","regularly",
+  "rapidly","closely","clearly","highly","deeply","broadly","specifically","primarily",
+  "generally","typically","currently","previously","recently","actively","proactively",
+  "independently","collaboratively","continuously","constantly","frequently","occasionally",
+  "potentially","approximately","significantly","substantially","largely","mainly","mostly",
+  "well","also","already","often","always","never","sometimes","usually","normally",
+  // Generic adjectives
+  "annual","monthly","weekly","daily","ongoing","immediate","immediate","overall","general",
+  "global","local","national","internal","external","various","multiple","different","diverse",
+  "key","strong","excellent","great","good","new","high","large","small","big","wide",
+  "broad","deep","complex","simple","clear","open","closed","public","private","shared",
+  "fast","quick","dynamic","innovative","creative","strategic","tactical","operational",
+  "dedicated","passionate","motivated","driven","results","oriented","focused","based",
+  "competitive","flexible","scalable","reliable","robust","secure","efficient","effective",
+  // Generic nouns (not skills)
+  "job","role","position","career","opportunity","team","company","startup","organization",
+  "person","people","individual","member","members","employee","employees","staff","hire",
+  "way","ways","area","areas","type","types","kind","kinds","form","forms","part","parts",
+  "range","set","list","group","groups","number","numbers","amount","level","levels",
+  "time","times","day","days","week","weeks","month","months","year","years",
+  "goal","goals","impact","value","values","result","results","outcome","outcomes",
+  "process","processes","system","systems","solution","solutions","approach","approaches",
+  "work","works","job","task","tasks","project","projects","initiative","initiatives",
+  "plan","plans","strategy","strategies","decision","decisions","problem","problems",
+  "idea","ideas","concept","concepts","point","points","case","cases","example","examples",
+  "basis","detail","details","aspect","aspects","factor","factors","issue","issues",
+  // HR/JD filler
+  "required","must","need","candidate","candidates","ideal","preferred","plus","minimum",
+  "least","one","two","three","four","five","six","seven","eight","nine","ten",
+  "senior","junior","mid","level","remote","hybrid","onsite","full","part","contract",
+  "permanent","etc","applicant","applicants","responsible","responsibilities",
   "requirement","requirements","qualifications","qualification","desired",
-  "include","includes","including","related","relevant","similar","equivalent",
-  "proven","demonstrated","ability","able","comfortable","familiar","knowledge",
-  "background","track","record","prior","previous","please","submit","send",
-  "equal","employer","opportunity","benefits","compensation","salary","pay",
+  "related","relevant","similar","equivalent","proven","demonstrated","ability","able",
+  "comfortable","familiar","knowledge","background","track","record","prior","previous",
+  "please","submit","send","equal","employer","benefits","compensation","salary","pay",
+  "bonus","equity","vacation","pto","perks","culture","mission","vision","values",
+  "about","office","location","travel","visa","sponsorship","authorization",
 ]);
+
+// Short tech terms that should be treated as keywords even though they're short
+const TECH_WHITELIST = new Set([
+  // Languages
+  "sql","css","php","lua","r","go","c","c++","c#","f#",
+  // Cloud/infra
+  "aws","gcp","azure","vpc","cdn","dns","ssl","tls","ssh","ftp","tcp","udp","http","https",
+  "s3","ec2","rds","ecs","eks","emr","sns","sqs","iam","vpc",
+  // Tools/tech
+  "api","sdk","ide","orm","cli","gui","crm","cms","erp","sap","etl","elt",
+  "git","svn","npm","pip","brew","vim","bash","zsh","curl","grep","awk",
+  // Frameworks/libs (short names)
+  "vue","ios","ml","ai","bi","qa","ui","ux",
+  // Methodologies
+  "tdd","bdd","ddd","oop","mvc","mvp","mvvm","soa","sre",
+  // Data
+  "csv","json","xml","yaml","toml","grpc","soap","rest",
+]);
+
+// Patterns that indicate a word is NOT a meaningful ATS keyword
+const JUNK_PATTERNS = [
+  /ly$/,          // adverbs: quickly, directly, efficiently, etc.
+  /ness$/,        // abstract nouns: effectiveness, readiness
+  /ment$/,        // generic: improvement, development (unless in phrase)
+  /^[0-9]+$/,     // pure numbers
+];
+
+// Synonym/alias map: if JD has key, also check resume for any of the values
+const SYNONYMS = {
+  "machine learning":       ["ml"],
+  "artificial intelligence":["ai"],
+  "javascript":             ["js"],
+  "typescript":             ["ts"],
+  "python":                 ["py"],
+  "kubernetes":             ["k8s"],
+  "amazon web services":    ["aws"],
+  "google cloud platform":  ["gcp"],
+  "continuous integration": ["ci"],
+  "continuous deployment":  ["cd"],
+  "ci/cd":                  ["ci cd","cicd","continuous integration","continuous deployment"],
+  "react":                  ["react.js","reactjs","react native"],
+  "node":                   ["node.js","nodejs"],
+  "next":                   ["next.js","nextjs"],
+  "vue":                    ["vue.js","vuejs"],
+  "angular":                ["angularjs"],
+  "postgresql":             ["postgres"],
+  "elasticsearch":          ["elastic search"],
+  "mongodb":                ["mongo"],
+  "github":                 ["git hub"],
+  "gitlab":                 ["git lab"],
+  "user experience":        ["ux"],
+  "user interface":         ["ui"],
+  "search engine optimization": ["seo"],
+  "pay per click":          ["ppc"],
+  "application programming interface": ["api"],
+  "large language model":   ["llm","llms"],
+  "retrieval augmented generation": ["rag"],
+};
+
+function isJunkWord(word) {
+  if (TECH_WHITELIST.has(word)) return false;
+  for (const pattern of JUNK_PATTERNS) {
+    if (pattern.test(word)) return true;
+  }
+  return false;
+}
+
+function resumeContains(resumeLower, keyword) {
+  if (resumeLower.includes(keyword)) return true;
+  // Check synonyms
+  const aliases = SYNONYMS[keyword];
+  if (aliases) {
+    for (const alias of aliases) {
+      if (resumeLower.includes(alias)) return true;
+    }
+  }
+  // Reverse: check if keyword is an alias for something else
+  for (const [canonical, aliasList] of Object.entries(SYNONYMS)) {
+    if (aliasList.includes(keyword) && resumeLower.includes(canonical)) return true;
+  }
+  return false;
+}
 
 function computeAtsScore(resume, jobDescription) {
   const resumeLower = resume.toLowerCase();
 
-  // Tokenize job description into words (strip leading/trailing punctuation per token)
-  const rawWords = jobDescription.toLowerCase()
-    .replace(/[^a-z0-9\s+#./-]/g, " ")
+  // Detect proper nouns in JD (capitalized words that aren't sentence-starts)
+  // Used to filter out company/person names from missing keywords
+  const properNounSet = new Set();
+  const sentences = jobDescription.split(/(?<=[.!?])\s+/);
+  for (const sentence of sentences) {
+    const words = sentence.trim().split(/\s+/);
+    for (let i = 1; i < words.length; i++) { // skip first word (sentence start)
+      const w = words[i];
+      if (/^[A-Z][a-z]{2,}$/.test(w) && !TECH_WHITELIST.has(w.toLowerCase())) {
+        properNounSet.add(w.toLowerCase());
+      }
+    }
+  }
+
+  const jdClean = jobDescription.toLowerCase().replace(/[^a-z0-9\s+#./-]/g, " ");
+
+  // Tokenize job description into words
+  const rawWords = jdClean
     .split(/\s+/)
-    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "")) // trim punctuation
-    .filter(w => w.length > 2 && !STOPWORDS.has(w));
+    .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
+    .filter(w => w.length >= 3 && !STOPWORDS.has(w) && !isJunkWord(w) && !properNounSet.has(w));
 
   // Count word frequency in JD
   const wordFreq = {};
@@ -315,78 +451,92 @@ function computeAtsScore(resume, jobDescription) {
     wordFreq[w] = (wordFreq[w] || 0) + 1;
   }
 
-  // Build unigram keywords (appear at least once, not stopwords)
-  const unigrams = Object.keys(wordFreq);
+  // Unigrams must appear 2+ times in JD OR be in the tech whitelist
+  const unigrams = Object.keys(wordFreq).filter(w =>
+    wordFreq[w] >= 2 || TECH_WHITELIST.has(w)
+  );
 
-  // Known tech/career phrases — always treated as a unit even if mentioned once
+  // Known tech/career phrases — always treated as a unit if mentioned even once
   const KNOWN_PHRASES = new Set([
+    // Engineering
     "system design","distributed systems","machine learning","deep learning",
     "natural language processing","computer vision","data structures","algorithms",
+    "large language models","retrieval augmented generation","vector database",
     "ci/cd","ci cd","continuous integration","continuous deployment","continuous delivery",
-    "test driven development","agile methodology","scrum master","product roadmap",
-    "go to market","product led growth","churn reduction","customer success",
-    "demand generation","pipeline attribution","marketing qualified lead","sales qualified lead",
-    "a/b testing","unit testing","integration testing","end to end testing",
+    "test driven development","behavior driven development","agile methodology","scrum master",
     "microservices architecture","service oriented","event driven","domain driven",
-    "cross functional","stakeholder management","executive communication",
-    "p&l responsibility","revenue growth","cost reduction","operational efficiency",
-    "full stack","front end","back end","devops","mlops","data pipeline",
-    "cloud infrastructure","kubernetes","docker","terraform","infrastructure as code",
     "rest api","graphql","api design","system architecture","technical leadership",
-    "engineering manager","product manager","data scientist","data engineer",
-    "on call","incident response","site reliability","performance optimization",
+    "full stack","front end","back end","devops","mlops","data pipeline","data warehouse",
+    "cloud infrastructure","cloud native","infrastructure as code","site reliability",
+    "on call","incident response","performance optimization","load balancing",
+    "engineering manager","software engineer","staff engineer","principal engineer",
+    "data scientist","data engineer","machine learning engineer","platform engineer",
+    "prompt engineering","fine tuning","model training","model deployment",
+    // Product
+    "product roadmap","go to market","product led growth","product market fit",
+    "user research","user testing","a/b testing","feature flagging","north star metric",
+    "product manager","product owner","product strategy","product analytics",
+    // Business/ops
+    "churn reduction","customer success","customer acquisition","customer retention",
+    "demand generation","pipeline attribution","revenue growth","cost reduction",
+    "p&l responsibility","operational efficiency","profit and loss","gross margin",
+    "marketing qualified lead","sales qualified lead","account executive",
+    "cross functional","stakeholder management","executive communication",
     "brand awareness","content strategy","social media","email marketing",
-    "search engine optimization","pay per click","conversion rate","customer acquisition",
+    "search engine optimization","pay per click","conversion rate","growth hacking",
     "project management","change management","people management","team building",
+    "venture capital","private equity","series a","series b",
   ]);
 
-  // Extract 2-gram and 3-gram phrases
-  const jdLower = jobDescription.toLowerCase().replace(/[^a-z0-9\s+#./-]/g, " ");
-  const jdWords = jdLower.split(/\s+/)
+  // Extract 2-gram and 3-gram phrases from JD
+  const jdWords = jdClean.split(/\s+/)
     .map(w => w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
     .filter(w => w.length > 0);
   const phraseFreq = {};
   for (let i = 0; i < jdWords.length - 1; i++) {
     const w1 = jdWords[i], w2 = jdWords[i + 1];
-    if (!STOPWORDS.has(w1) && !STOPWORDS.has(w2) && w1.length > 2 && w2.length > 2) {
+    if (!STOPWORDS.has(w1) && !STOPWORDS.has(w2) && w1.length >= 3 && w2.length >= 3
+        && !isJunkWord(w1) && !isJunkWord(w2)
+        && !properNounSet.has(w1) && !properNounSet.has(w2)) {
       const phrase = `${w1} ${w2}`;
       phraseFreq[phrase] = (phraseFreq[phrase] || 0) + 1;
     }
     if (i < jdWords.length - 2) {
       const w3 = jdWords[i + 2];
-      if (!STOPWORDS.has(w1) && !STOPWORDS.has(w3) && w1.length > 2 && w2.length > 2 && w3.length > 2) {
+      if (!STOPWORDS.has(w1) && !STOPWORDS.has(w3) && w1.length >= 3 && w2.length >= 3 && w3.length >= 3
+          && !isJunkWord(w1) && !isJunkWord(w3)
+          && !properNounSet.has(w1) && !properNounSet.has(w3)) {
         const phrase3 = `${w1} ${w2} ${w3}`;
         phraseFreq[phrase3] = (phraseFreq[phrase3] || 0) + 1;
       }
     }
   }
 
-  // Collect multi-word phrases: appear 2+ times OR are in the known list (1+ times)
+  // Collect multi-word phrases: appear 2+ times OR in known list
   const multiPhrases = Object.entries(phraseFreq)
     .filter(([phrase, freq]) => freq >= 2 || KNOWN_PHRASES.has(phrase))
     .map(([phrase]) => phrase);
 
-  // Deduplicate: prefer multi-word phrases, drop constituent unigrams they cover
+  // Deduplicate: phrases take priority, drop constituent unigrams they cover
   const coveredByPhrase = new Set();
   for (const phrase of multiPhrases) {
     phrase.split(" ").forEach(w => coveredByPhrase.add(w));
   }
 
-  // Final keyword list: multi-word phrases + unigrams not covered by a phrase
+  // Final keyword list: multi-word phrases + qualifying unigrams not covered by a phrase
   const candidates = [
     ...multiPhrases,
     ...unigrams.filter(w => !coveredByPhrase.has(w)),
   ];
 
-  // Deduplicate
   const keywords = [...new Set(candidates)];
 
-  // Check presence in resume
+  // Check presence in resume (with synonym matching)
   const present = [];
   const missing = [];
 
   for (const kw of keywords) {
-    if (resumeLower.includes(kw)) {
+    if (resumeContains(resumeLower, kw)) {
       present.push(kw);
     } else {
       missing.push(kw);
@@ -398,12 +548,8 @@ function computeAtsScore(resume, jobDescription) {
 
   // Sort missing by JD frequency (most-mentioned first) for top 10
   const sortedMissing = missing.sort((a, b) => {
-    const freqA = a.includes(" ")
-      ? (phraseFreq[a] || 0)
-      : (wordFreq[a] || 0);
-    const freqB = b.includes(" ")
-      ? (phraseFreq[b] || 0)
-      : (wordFreq[b] || 0);
+    const freqA = a.includes(" ") ? (phraseFreq[a] || 0) : (wordFreq[a] || 0);
+    const freqB = b.includes(" ") ? (phraseFreq[b] || 0) : (wordFreq[b] || 0);
     return freqB - freqA;
   }).slice(0, 10);
 
