@@ -462,10 +462,15 @@ function computeAtsScore(resume, jobDescription) {
     wordFreq[w] = (wordFreq[w] || 0) + 1;
   }
 
-  // Unigrams ONLY qualify if they are in the tech whitelist.
-  // Generic English words that happen to appear frequently are NOT ATS keywords.
-  // Multi-word phrases handle everything else.
-  const unigrams = Object.keys(wordFreq).filter(w => TECH_WHITELIST.has(w));
+  // Unigrams qualify if:
+  //   (a) in the tech whitelist (short known terms like aws, sql, react), OR
+  //   (b) appear 3+ times in JD AND are 6+ characters AND not stopword/junk
+  // This handles any industry: "campaigns", "attribution", "compliance",
+  // "forecasting", "underwriting" etc. all pass naturally without a hardcoded list.
+  const unigrams = Object.keys(wordFreq).filter(w =>
+    TECH_WHITELIST.has(w) ||
+    (wordFreq[w] >= 3 && w.length >= 6)
+  );
 
   // Known tech/career phrases — always treated as a unit if mentioned even once
   const KNOWN_PHRASES = new Set([
