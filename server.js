@@ -205,7 +205,7 @@ async function sendRoastEmail(toEmail, roastText, docxBuffer) {
     <h1 style="color:#fff;font-size:2rem;font-weight:800;margin-bottom:8px">
       Your Resume <span style="color:#ff4d4d">Roast</span> is Ready 🔥
     </h1>
-    <p style="color:#888;margin:0 0 32px">Here's what our AI career coach thinks. Brace yourself.</p>
+    <p style="color:#888;margin:0 0 32px">Here's what our career coach thinks. Brace yourself.</p>
     <div style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:32px;line-height:1.7;font-size:1rem">
       ${htmlBody}
     </div>
