@@ -494,7 +494,7 @@ function computeAtsScore(resume, jobDescription) {
   // "forecasting", "underwriting" etc. all pass naturally without a hardcoded list.
   const unigrams = Object.keys(wordFreq).filter(w =>
     TECH_WHITELIST.has(w) ||
-    (wordFreq[w] >= 3 && w.length >= 8)
+    (wordFreq[w] >= 3 && w.length >= 6)
   );
 
   // Known tech/career phrases — always treated as a unit if mentioned even once
