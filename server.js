@@ -42,6 +42,11 @@ try {
   db.exec(`ALTER TABLE jobs ADD COLUMN after_ats_score INTEGER`);
 } catch (_) { /* column already exists */ }
 
+// Add before_ats_score column (fresh Haiku score, consistent with after_ats_score)
+try {
+  db.exec(`ALTER TABLE jobs ADD COLUMN before_ats_score INTEGER`);
+} catch (_) { /* column already exists */ }
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS ats_checks (
     id TEXT PRIMARY KEY,
@@ -60,7 +65,7 @@ const stmtInsert = db.prepare(
 );
 const stmtGet    = db.prepare(`SELECT * FROM jobs WHERE id = ?`);
 const stmtUpdate = db.prepare(`UPDATE jobs SET paid = @paid, email = @email WHERE id = @id`);
-const stmtResult = db.prepare(`UPDATE jobs SET result = @result, after_ats_score = @after_ats_score WHERE id = @id`);
+const stmtResult = db.prepare(`UPDATE jobs SET result = @result, before_ats_score = @before_ats_score, after_ats_score = @after_ats_score WHERE id = @id`);
 const stmtDelete = db.prepare(`DELETE FROM jobs WHERE created_at < ?`);
 
 // ATS checks statements
@@ -700,13 +705,8 @@ app.get("/api/result", async (req, res) => {
 
   // If result already ready, return it
   if (job.result) {
-    // Get beforeScore from ats_checks if ats_id exists
-    let beforeScore = null;
-    if (job.ats_id) {
-      const atsRow = stmtAtsGet.get(job.ats_id);
-      if (atsRow) beforeScore = atsRow.score;
-    }
-    const afterScore = job.after_ats_score != null ? job.after_ats_score : null;
+    const beforeScore = job.before_ats_score != null ? job.before_ats_score : null;
+    const afterScore  = job.after_ats_score  != null ? job.after_ats_score  : null;
     return res.json({ status: "ready", result: job.result, beforeScore, afterScore });
   }
 
@@ -753,14 +753,19 @@ You are a savage but brilliant career coach who has seen thousands of resumes an
       const fixMatch = result.match(/(?:^|\n)[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?THE FIX(?:\*\*)?\s*[-–]?[^\n]*\n([\s\S]*?)(?=\n[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?TOP\s+3|\n[#*\s]*(?:\d+\.?\s*)?(?:\*\*)?YOUR AI|$)/i);
       const rewrittenResume = fixMatch ? fixMatch[1].trim() : null;
 
-      // Compute after score if we have the rewritten resume and job description
+      // Compute before + after scores using the same Haiku method — apples to apples
+      let beforeScore = null;
       let afterScore = null;
-      if (rewrittenResume && job.job_description) {
-        const afterAts = await computeAtsScore(rewrittenResume, job.job_description);
-        afterScore = afterAts.score;
+      if (job.job_description) {
+        const [beforeAts, afterAts] = await Promise.all([
+          computeAtsScore(job.resume, job.job_description),
+          rewrittenResume ? computeAtsScore(rewrittenResume, job.job_description) : Promise.resolve({ score: null }),
+        ]);
+        beforeScore = beforeAts.score;
+        afterScore  = afterAts.score;
       }
 
-      stmtResult.run({ result, after_ats_score: afterScore, id: session_id });
+      stmtResult.run({ result, before_ats_score: beforeScore, after_ats_score: afterScore, id: session_id });
 
       // Generate .docx from rewritten resume and send email
       const freshJob = stmtGet.get(session_id);
