@@ -641,7 +641,9 @@
     <!-- Phase 2: ATS step — inline JD input -->
     <div class="ats-step" id="atsStep">
       <h2>How Bad Is It for This Specific Job?</h2>
-      <p class="ats-step-sub">Got a job in mind? Paste the job description below and get a free ATS keyword match score.</p>
+      <p class="ats-step-sub">Got a job in mind? Drop in the URL or paste the description — we'll score it free.</p>
+      <input type="url" id="atsJobUrl" placeholder="Job posting URL (LinkedIn, Indeed, Greenhouse…)" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px 16px;color:#e0e0e0;font-size:1rem;margin-bottom:10px;outline:none;" />
+      <div style="text-align:center;color:#555;font-size:0.85rem;margin-bottom:10px;">— or —</div>
       <textarea id="atsJobDesc" placeholder="Paste the full job description here..." maxlength="8000"></textarea>
       <button class="ats-btn" id="atsBtn" onclick="runAtsCheck()">Get My ATS Score — Free &rarr;</button>
       <p class="ats-error" id="atsError"></p>
@@ -920,23 +922,28 @@
 
     async function runAtsCheck() {
       const jd = document.getElementById("atsJobDesc").value.trim();
+      const jobUrl = document.getElementById("atsJobUrl").value.trim();
       const errEl = document.getElementById("atsError");
       const btn = document.getElementById("atsBtn");
       errEl.textContent = "";
 
-      if (!jd) {
-        errEl.textContent = "Please paste a job description.";
+      if (!jd && !jobUrl) {
+        errEl.textContent = "Please enter a job URL or paste a job description.";
         return;
       }
 
       btn.disabled = true;
       btn.textContent = "Analyzing...";
 
+      const body = { id: roastId };
+      if (jobUrl) body.jobUrl = jobUrl;
+      if (jd) body.job_description = jd;
+
       try {
         const res = await fetch("/api/ats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: roastId, job_description: jd }),
+          body: JSON.stringify(body),
         });
 
         const data = await res.json();
