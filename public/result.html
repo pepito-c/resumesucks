@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Roast Is Ready – ResumeSucks.com</title>
+  <title>Your Results – ResumeSucks.com</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -76,7 +76,7 @@
       font-style: italic;
     }
 
-    /* Result content */
+    /* Result content (roast) */
     .result {
       display: none;
       background: #1a1a1a;
@@ -98,38 +98,6 @@
 
     .result h2:first-child { margin-top: 0; }
 
-    /* AI-Proof section gets a teal/blue accent */
-    .result .ai-proof-section {
-      background: #0d1f2d;
-      border: 1px solid #1e4a6e;
-      border-left: 4px solid #4d9fff;
-      border-radius: 10px;
-      padding: 28px 32px;
-      margin-top: 40px;
-    }
-
-    .result .ai-proof-section .ai-proof-header {
-      color: #4d9fff;
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .result .ai-proof-section .ai-proof-subtitle {
-      color: #5a8aaa;
-      font-size: 0.88rem;
-      margin-bottom: 18px;
-      font-style: italic;
-    }
-
-    .result .ai-proof-section strong {
-      color: #7bbfff;
-    }
-
-    .result .ai-proof-section li {
-      color: #b8d8f0;
-    }
-
     .result p { margin-bottom: 12px; }
 
     .result ul, .result ol {
@@ -142,6 +110,251 @@
       border: none;
       border-top: 1px solid #333;
       margin: 32px 0;
+    }
+
+    /* ── ATS Step (Phase 2) ──────────────────────────────────────────────── */
+    .ats-step {
+      display: none;
+      margin-top: 36px;
+      padding: 36px 32px;
+      background: #111;
+      border: 2px solid #ff9500;
+      border-radius: 12px;
+    }
+
+    .ats-step h2 {
+      color: #ff9500;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .ats-step .ats-step-sub {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .ats-step textarea {
+      width: 100%;
+      height: 160px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 14px 16px;
+      resize: vertical;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .ats-step textarea:focus {
+      outline: none;
+      border-color: #ff9500;
+    }
+
+    .ats-step textarea::placeholder { color: #555; }
+
+    .ats-btn {
+      display: block;
+      width: 100%;
+      background: #ff9500;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 16px 32px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .ats-btn:hover { background: #e08600; }
+    .ats-btn:active { transform: scale(0.98); }
+    .ats-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .ats-step .ats-error {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    /* ATS Results inline */
+    .ats-results {
+      display: none;
+      margin-top: 24px;
+    }
+
+    /* Score display */
+    .score-card {
+      background: #1a1200;
+      border: 1px solid #4a3000;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .score-card .sc-title {
+      color: #aaa;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .score-card .score-number-big {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #ff9500;
+      line-height: 1;
+    }
+
+    .score-card .score-interpretation {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .keywords-section {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .keywords-section h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .pill-missing {
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid rgba(255, 77, 77, 0.35);
+      color: #ff8080;
+    }
+
+    /* ── CTA Section (upsell to paid tailoring) ────────────────────────── */
+    .upsell-section {
+      display: none;
+      text-align: center;
+      margin-top: 36px;
+      padding: 36px 32px;
+      background: #111;
+      border: 2px solid #ff9500;
+      border-radius: 12px;
+    }
+
+    .upsell-section h2 {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .upsell-section p {
+      color: #999;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .upsell-btn {
+      display: inline-block;
+      background: #ff9500;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 48px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .upsell-btn:hover { background: #e08600; }
+    .upsell-btn:active { transform: scale(0.98); }
+    .upsell-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .upsell-sub {
+      margin-top: 12px;
+      color: #666;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    .upsell-error {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    /* Inline JD field inside upsell (for users who skipped ATS) */
+    .upsell-jd-wrap {
+      display: none;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .upsell-jd-wrap textarea {
+      width: 100%;
+      height: 140px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 14px 16px;
+      resize: vertical;
+      transition: border-color 0.2s;
+      margin-bottom: 8px;
+    }
+
+    .upsell-jd-wrap textarea:focus {
+      outline: none;
+      border-color: #ff9500;
+    }
+
+    .upsell-jd-wrap textarea::placeholder { color: #555; }
+
+    .upsell-jd-wrap label {
+      display: block;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    /* ── Paid content section ──────────────────────────────────────────── */
+    .paid-loading {
+      display: none;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .paid-result {
+      display: none;
+      margin-top: 32px;
     }
 
     /* Before/After ATS Score Comparison Card */
@@ -200,13 +413,6 @@
       line-height: 1;
     }
 
-    .score-comparison .sc-num-only {
-      font-size: 3rem;
-      font-weight: 800;
-      color: #4dff91;
-      line-height: 1;
-    }
-
     .score-comparison .sc-arrow {
       font-size: 1.8rem;
       color: #555;
@@ -223,42 +429,63 @@
       color: #ff4d4d;
     }
 
-    .score-comparison .sc-only-label {
-      color: #aaa;
-      font-size: 0.95rem;
-      margin-bottom: 10px;
-    }
-
-    /* ATS Keyword Analysis section gets an orange/amber accent */
-    .result .ats-section {
-      background: #1a1200;
-      border: 1px solid #4a3000;
-      border-left: 4px solid #ff9500;
+    /* AI-Proof section */
+    .paid-result .ai-proof-section {
+      background: #0d1f2d;
+      border: 1px solid #1e4a6e;
+      border-left: 4px solid #4d9fff;
       border-radius: 10px;
       padding: 28px 32px;
       margin-top: 40px;
     }
 
-    .result .ats-section .ats-header {
-      color: #ff9500;
+    .paid-result .ai-proof-section .ai-proof-header {
+      color: #4d9fff;
       font-size: 1.4rem;
       font-weight: 800;
       margin-bottom: 4px;
     }
 
-    .result .ats-section .ats-subtitle {
-      color: #a07030;
+    .paid-result .ai-proof-section .ai-proof-subtitle {
+      color: #5a8aaa;
       font-size: 0.88rem;
       margin-bottom: 18px;
       font-style: italic;
     }
 
-    .result .ats-section strong {
-      color: #ffb84d;
+    .paid-result .ai-proof-section strong {
+      color: #7bbfff;
     }
 
-    .result .ats-section li {
-      color: #e8c580;
+    .paid-result .ai-proof-section li {
+      color: #b8d8f0;
+    }
+
+    .paid-result h2 {
+      color: #ff4d4d;
+      font-size: 1.4rem;
+      margin: 32px 0 16px;
+    }
+
+    .paid-result h2:first-child { margin-top: 0; }
+
+    .paid-result strong { color: #ff4d4d; }
+
+    .paid-result p { margin-bottom: 12px; }
+
+    .paid-result ul, .paid-result ol {
+      margin: 0 0 16px 24px;
+    }
+
+    .paid-result li { margin-bottom: 8px; }
+
+    /* Wins section */
+    .paid-result .wins-section strong {
+      color: #4dff91;
+    }
+
+    .paid-result .wins-section li {
+      color: #ccc;
     }
 
     /* ── Resume Card (THE FIX) ─────────────────────────────────────────── */
@@ -398,19 +625,78 @@
 <body>
   <div class="container">
     <h1>Your <span>Roast</span> Is Ready</h1>
-    <p class="subtitle">Here's what our career coach thinks of your resume.</p>
+    <p class="subtitle">Here's what's wrong with your resume. No sugar-coating.</p>
 
+    <!-- Phase 1: Loading state -->
     <div class="loading" id="loading">
       <div class="spinner"></div>
       <p>Roasting your resume...</p>
-      <p class="subtext">This takes 15–30 seconds. We're being thorough.</p>
+      <p class="subtext">This takes 5–15 seconds. We're being thorough.</p>
       <p class="poll-status" id="pollStatus"></p>
     </div>
 
-    <div class="score-comparison" id="scoreComparison" style="display:none"></div>
-
+    <!-- Phase 1: Roast result -->
     <div class="result" id="result"></div>
 
+    <!-- Phase 2: ATS step — inline JD input -->
+    <div class="ats-step" id="atsStep">
+      <h2>How Bad Is It for This Specific Job?</h2>
+      <p class="ats-step-sub">Got a job in mind? Paste the job description below and get a free ATS keyword match score.</p>
+      <textarea id="atsJobDesc" placeholder="Paste the full job description here..." maxlength="8000"></textarea>
+      <button class="ats-btn" id="atsBtn" onclick="runAtsCheck()">Get My ATS Score — Free &rarr;</button>
+      <p class="ats-error" id="atsError"></p>
+
+      <!-- ATS results appear here -->
+      <div class="ats-results" id="atsResults">
+        <div class="score-card" id="scoreCard">
+          <div class="sc-title">Your ATS Keyword Match</div>
+          <div class="score-number-big" id="scoreDisplay">0%</div>
+          <div class="score-interpretation" id="scoreInterpretation"></div>
+          <div class="keywords-section" id="missingSection" style="display:none">
+            <h3>Missing keywords:</h3>
+            <div class="pill-list" id="missingPills"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA: upsell to paid tailoring (after ATS) -->
+    <div class="upsell-section" id="upsellAfterAts" style="display:none">
+      <h2>Ready to Fix It?</h2>
+      <p>You've seen what's wrong and which keywords you're missing. Get a job-tailored resume rewrite, your top 3 wins, and your AI-proof case.</p>
+      <button class="upsell-btn" id="upsellBtnAts" onclick="buyTailoring()">Fix It — Tailored Rewrite &rarr; $9</button>
+      <p class="upsell-sub">Includes full rewrite for this exact job, downloadable .docx, and email delivery.</p>
+      <p class="upsell-error" id="upsellErrorAts"></p>
+    </div>
+
+    <!-- CTA: upsell to paid tailoring (no ATS — skipped JD) -->
+    <div class="upsell-section" id="upsellNoAts" style="display:none">
+      <h2>Ready to Fix It?</h2>
+      <p>Add a job description and get a tailored rewrite that hits every keyword.</p>
+      <div class="upsell-jd-wrap" id="upsellJdWrap">
+        <label>Paste the job description:</label>
+        <textarea id="upsellJobDesc" placeholder="Paste the full job description here..." maxlength="8000"></textarea>
+      </div>
+      <button class="upsell-btn" id="upsellBtnNoAts" onclick="handleNoAtsUpsell()">Get a Tailored Rewrite &rarr; $9</button>
+      <p class="upsell-sub">Includes full rewrite for this exact job, downloadable .docx, and email delivery.</p>
+      <p class="upsell-error" id="upsellErrorNoAts"></p>
+    </div>
+
+    <!-- Paid content: loading state -->
+    <div class="paid-loading" id="paidLoading">
+      <div class="spinner"></div>
+      <p>Tailoring your resume...</p>
+      <p class="subtext">This takes 15–30 seconds. We're rewriting every bullet.</p>
+      <p class="poll-status" id="paidPollStatus"></p>
+    </div>
+
+    <!-- Paid content: score comparison -->
+    <div class="score-comparison" id="scoreComparison" style="display:none"></div>
+
+    <!-- Paid content: result -->
+    <div class="paid-result" id="paidResult" style="display:none"></div>
+
+    <!-- Error state -->
     <div class="error" id="error">
       <p id="errorMsg">Something went wrong.</p>
       <a href="/" class="btn">Try Again</a>
@@ -423,176 +709,83 @@
   </footer>
 
   <script>
+    const params    = new URLSearchParams(window.location.search);
+    const roastId   = params.get("id");
+    const sessionId = params.get("session_id");
+
     const loadingEl         = document.getElementById("loading");
     const resultEl          = document.getElementById("result");
+    const atsStepEl         = document.getElementById("atsStep");
+    const atsResultsEl      = document.getElementById("atsResults");
+    const upsellAfterAtsEl  = document.getElementById("upsellAfterAts");
+    const upsellNoAtsEl     = document.getElementById("upsellNoAts");
+    const upsellJdWrapEl    = document.getElementById("upsellJdWrap");
+    const paidLoadingEl     = document.getElementById("paidLoading");
+    const paidResultEl      = document.getElementById("paidResult");
+    const scoreComparisonEl = document.getElementById("scoreComparison");
     const errorEl           = document.getElementById("error");
     const errorMsg          = document.getElementById("errorMsg");
     const pollStatus        = document.getElementById("pollStatus");
-    const scoreComparisonEl = document.getElementById("scoreComparison");
+    const paidPollStatus    = document.getElementById("paidPollStatus");
 
-    function renderScoreComparison(beforeScore, afterScore) {
-      if (afterScore == null) {
-        scoreComparisonEl.style.display = "none";
-        return;
-      }
+    // Track if ATS has been completed
+    let atsCompleted = false;
 
-      let html = `<div class="sc-title">📊 ATS Score Improvement</div>`;
+    // ── Helpers ──────────────────────────────────────────────────────────
 
-      if (beforeScore != null) {
-        const delta = afterScore - beforeScore;
-        const deltaSign = delta >= 0 ? "+" : "";
-        const deltaClass = delta >= 0 ? "sc-delta" : "sc-delta sc-delta-neg";
-        const arrow = delta >= 0 ? "↑" : "↓";
-        html += `<div class="sc-scores">
-          <div class="sc-block">
-            <div class="sc-label">Before</div>
-            <div class="sc-num-before">${beforeScore}%</div>
-          </div>
-          <div class="sc-arrow">→</div>
-          <div class="sc-block">
-            <div class="sc-label">After</div>
-            <div class="sc-num-after">${afterScore}%</div>
-          </div>
-          <div class="${deltaClass}">${arrow} ${deltaSign}${delta} pts</div>
-        </div>`;
-      } else {
-        html += `<div class="sc-only-label">Rewritten Resume ATS Score</div>
-        <div class="sc-num-only">${afterScore}%</div>`;
-      }
-
-      scoreComparisonEl.innerHTML = html;
-      scoreComparisonEl.style.display = "block";
+    function getScoreInterpretation(score) {
+      if (score <= 40) return "High risk of being filtered";
+      if (score <= 65) return "Borderline — many ATS will filter this";
+      if (score <= 85) return "Decent match — room to improve";
+      return "Strong match";
     }
 
-    function renderResult(text) {
-      // New prompt order: 1. ATS KEYWORD ANALYSIS, 2. THE ROAST, 3. THE FIX, 4. TOP 3 WINS, 5. YOUR AI-PROOF CASE
-      // ATS renders first (immediately visible on page load), AI-Proof gets styled box at end.
-      const atsRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?/i;
-      const roastRegex   = /(?:^|\n)(#+\s*)?(\*\*)?(?:2\.\s*)?THE ROAST(\*\*)?\s*[-–]?/i;
-      const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
-      const fixRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?THE FIX(\*\*)?\s*[-–]?/i;
-      const winsRegex    = /(?:^|\n)(#+\s*)?(\*\*)?(?:4\.\s*)?TOP\s+3\s+WINS(\*\*)?\s*[-–]?/i;
-
-      const atsIdx     = text.search(atsRegex);
-      const roastIdx   = text.search(roastRegex);
-      const aiProofIdx = text.search(aiProofRegex);
-
-      // Fallback: if we can't find the expected structure, render as plain markdown
-      if (atsIdx === -1 && aiProofIdx === -1) {
-        return markdownToHtml(text);
+    function animateCounter(el, target, suffix) {
+      const duration = 800;
+      const start = performance.now();
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
       }
-
-      let atsPart, mainPart, aiPart;
-
-      if (atsIdx !== -1 && roastIdx !== -1) {
-        // Expected happy path: ATS first, then main content, then AI-Proof at end
-        atsPart  = text.slice(atsIdx, roastIdx);
-        if (aiProofIdx !== -1 && aiProofIdx > roastIdx) {
-          mainPart = text.slice(roastIdx, aiProofIdx);
-          aiPart   = text.slice(aiProofIdx);
-        } else {
-          mainPart = text.slice(roastIdx);
-          aiPart   = null;
-        }
-      } else if (atsIdx !== -1 && aiProofIdx !== -1 && aiProofIdx > atsIdx) {
-        // ATS found but no explicit roast marker — split on AI-Proof
-        atsPart  = text.slice(atsIdx, aiProofIdx);
-        mainPart = "";
-        aiPart   = text.slice(aiProofIdx);
-      } else if (aiProofIdx !== -1) {
-        // Older format fallback: no ATS section found, just split out AI-Proof
-        atsPart  = null;
-        mainPart = text.slice(0, aiProofIdx);
-        aiPart   = text.slice(aiProofIdx);
-      } else {
-        // ATS found but no AI-Proof
-        atsPart  = text.slice(atsIdx);
-        mainPart = atsIdx > 0 ? text.slice(0, atsIdx) : "";
-        aiPart   = null;
-      }
-
-      let html = "";
-
-      // ATS section renders FIRST — person sees their score immediately
-      if (atsPart) {
-        const atsContent = atsPart
-          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?ATS KEYWORD ANALYSIS(\*\*)?\s*[-–]?\s*/i, "")
-          .trim();
-        html += `<div class="ats-section">
-            <div class="ats-header">📊 ATS Keyword Analysis</div>
-            <div class="ats-subtitle">Why the algorithm might be ghosting you</div>
-            ${markdownToHtml(atsContent)}
-          </div>`;
-      }
-
-      if (mainPart) {
-        const fixIdx  = mainPart.search(fixRegex);
-        const winsIdx = mainPart.search(winsRegex);
-
-        let roastPart, fixPart, winsPart;
-        if (fixIdx !== -1) {
-          roastPart = mainPart.slice(0, fixIdx);
-          if (winsIdx !== -1 && winsIdx > fixIdx) {
-            fixPart  = mainPart.slice(fixIdx, winsIdx);
-            winsPart = mainPart.slice(winsIdx);
-          } else {
-            fixPart  = mainPart.slice(fixIdx);
-            winsPart = "";
-          }
-        } else {
-          roastPart = mainPart;
-          fixPart   = "";
-          winsPart  = "";
-        }
-        const fixContent = fixPart.replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?THE FIX(\*\*)?\s*[-–]?\s*/i, '').trim();
-
-        html += markdownToHtml(roastPart);
-        if (fixContent) html += renderResumeCard(fixContent);
-        html += markdownToHtml(winsPart);
-      }
-
-      if (aiPart) {
-        const aiContent = aiPart
-          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:5\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
-          .trim();
-        html += `<div class="ai-proof-section">
-            <div class="ai-proof-header">🤖 Your AI-Proof Case</div>
-            <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
-            ${markdownToHtml(aiContent)}
-          </div>`;
-      }
-
-      return html;
+      requestAnimationFrame(step);
     }
 
     function markdownToHtml(text) {
       return text
-        // Bold
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        // Italic
         .replace(/\*(.+?)\*/g, "<em>$1</em>")
-        // H2 headers
         .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-        // H3 headers
         .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-        // Numbered list items
         .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
-        // Bullet list items
         .replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>")
-        // Wrap consecutive <li> in <ul>
         .replace(/((?:<li>.*<\/li>\n?)+)/g, "<ul>$1</ul>")
-        // Horizontal rules
         .replace(/^---$/gm, "<hr>")
-        // Paragraphs (double newlines)
         .replace(/\n\n/g, "</p><p>")
-        // Single newlines within blocks
         .replace(/\n/g, "<br>")
-        // Wrap in paragraph
         .replace(/^/, "<p>")
         .replace(/$/, "</p>")
-        // Clean up empty paragraphs
         .replace(/<p>\s*<\/p>/g, "");
     }
+
+    // ── Render roast (strip any ATS header if accidentally included) ─────
+
+    function renderRoast(roastText) {
+      // Try to extract just THE ROAST section
+      const roastRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:\d+\.\s*)?THE ROAST(\*\*)?\s*[-–]?/i;
+      const roastIdx = roastText.search(roastRegex);
+
+      if (roastIdx !== -1) {
+        const roastPart = roastText.slice(roastIdx);
+        return markdownToHtml(roastPart);
+      }
+
+      return markdownToHtml(roastText);
+    }
+
+    // ── Render paid content ──────────────────────────────────────────────
 
     function renderResumeCard(text) {
       const lines = text.split('\n');
@@ -603,22 +796,18 @@
         const trimmed = line.trim();
         if (!trimmed) { body += '<div class="resume-spacer"></div>'; return; }
 
-        // Name: first H1 or H2 line
         if (!nameFound && /^#{1,2}\s+/.test(trimmed)) {
           body += `<div class="resume-name">${trimmed.replace(/^#+\s+/, '').replace(/\*\*/g, '')}</div>`;
           nameFound = true;
         }
-        // Section header: ### or ALL CAPS (4+ chars) or **ALL CAPS**
         else if (/^###\s+/.test(trimmed) || /^\*\*[A-Z][A-Z\s&]+\*\*$/.test(trimmed) || /^[A-Z][A-Z\s&]{3,}$/.test(trimmed)) {
           const label = trimmed.replace(/^#+\s+/, '').replace(/\*\*/g, '');
           body += `<div class="resume-section-header">${label}</div>`;
         }
-        // Bullet point
         else if (/^[-*•]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed)) {
           const content = trimmed.replace(/^[-*•]\s+/, '').replace(/^\d+\.\s+/, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-          body += `<div class="resume-bullet">• ${content}</div>`;
+          body += `<div class="resume-bullet">&bull; ${content}</div>`;
         }
-        // Regular line
         else {
           body += `<div class="resume-line">${trimmed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</div>`;
         }
@@ -627,66 +816,299 @@
       return `
         <div class="resume-card" id="resumeCard">
           <div class="resume-download-bar">
-            <button onclick="downloadResume()" class="download-btn">📄 Download as .docx</button>
+            <button onclick="downloadResume()" class="download-btn">Download as .docx</button>
             <span class="download-hint">Word-compatible file — open in Google Docs or Microsoft Word</span>
           </div>
           <div class="resume-draft-notice">
-            ⚠️ <strong>This is a draft — review before sending.</strong> AI rewrites what's already in your resume. Read it carefully and remove anything that doesn't accurately reflect your real experience.
+            <strong>This is a draft — review before sending.</strong> AI rewrites what's already in your resume. Read it carefully and remove anything that doesn't accurately reflect your real experience.
           </div>
           <div class="resume-body">${body}</div>
         </div>`;
     }
 
+    function renderPaidResult(text) {
+      const fixRegex     = /(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?THE FIX(\*\*)?\s*[-–]?/i;
+      const winsRegex    = /(?:^|\n)(#+\s*)?(\*\*)?(?:2\.\s*)?TOP\s+3\s+WINS(\*\*)?\s*[-–]?/i;
+      const aiProofRegex = /(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?/i;
+
+      const fixIdx     = text.search(fixRegex);
+      const winsIdx    = text.search(winsRegex);
+      const aiProofIdx = text.search(aiProofRegex);
+
+      let html = "";
+
+      // THE FIX
+      if (fixIdx !== -1) {
+        const fixEnd = winsIdx !== -1 ? winsIdx : (aiProofIdx !== -1 ? aiProofIdx : text.length);
+        const fixContent = text.slice(fixIdx, fixEnd)
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:1\.\s*)?THE FIX(\*\*)?\s*[-–]?\s*/i, '')
+          .trim();
+        if (fixContent) {
+          html += `<h2>The Fix — Your Tailored Resume</h2>`;
+          html += renderResumeCard(fixContent);
+        }
+      }
+
+      // TOP 3 WINS
+      if (winsIdx !== -1) {
+        const winsEnd = aiProofIdx !== -1 ? aiProofIdx : text.length;
+        const winsContent = text.slice(winsIdx, winsEnd);
+        html += `<div class="wins-section">${markdownToHtml(winsContent)}</div>`;
+      }
+
+      // AI-PROOF CASE
+      if (aiProofIdx !== -1) {
+        const aiContent = text.slice(aiProofIdx)
+          .replace(/(?:^|\n)(#+\s*)?(\*\*)?(?:3\.\s*)?YOUR AI-PROOF CASE(\*\*)?\s*[-–]?\s*/i, "")
+          .trim();
+        html += `<div class="ai-proof-section">
+            <div class="ai-proof-header">Your AI-Proof Case</div>
+            <div class="ai-proof-subtitle">Why you're harder to replace than you think</div>
+            ${markdownToHtml(aiContent)}
+          </div>`;
+      }
+
+      // Fallback
+      if (!html) {
+        html = markdownToHtml(text);
+      }
+
+      return html;
+    }
+
+    function renderScoreComparison(beforeScore, afterScore) {
+      if (afterScore == null) return;
+
+      let html = `<div class="sc-title">ATS Score After Rewrite</div>`;
+
+      if (beforeScore != null) {
+        const delta = afterScore - beforeScore;
+        const deltaSign = delta >= 0 ? "+" : "";
+        const deltaClass = delta >= 0 ? "sc-delta" : "sc-delta sc-delta-neg";
+        const arrow = delta >= 0 ? "\u2191" : "\u2193";
+        html += `<div class="sc-scores">
+          <div class="sc-block">
+            <div class="sc-label">Before</div>
+            <div class="sc-num-before">${beforeScore}%</div>
+          </div>
+          <div class="sc-arrow">&rarr;</div>
+          <div class="sc-block">
+            <div class="sc-label">After</div>
+            <div class="sc-num-after">${afterScore}%</div>
+          </div>
+          <div class="${deltaClass}">${arrow} ${deltaSign}${delta} pts</div>
+        </div>`;
+      }
+
+      scoreComparisonEl.innerHTML = html;
+      scoreComparisonEl.style.display = "block";
+    }
+
     function downloadResume() {
-      const sessionId = new URLSearchParams(window.location.search).get("session_id");
       if (sessionId) window.location.href = `/download-resume/${sessionId}`;
       else alert("Session not found — please reload the page.");
     }
 
     function showError(msg) {
       loadingEl.style.display = "none";
+      paidLoadingEl.style.display = "none";
       errorMsg.textContent = msg;
       errorEl.style.display = "block";
     }
 
-    async function pollResult() {
-      const params = new URLSearchParams(window.location.search);
-      const sessionId = params.get("session_id");
+    // ── ATS Check (Phase 2) ──────────────────────────────────────────────
 
-      if (!sessionId) {
-        showError("No session ID found. Please start over.");
+    async function runAtsCheck() {
+      const jd = document.getElementById("atsJobDesc").value.trim();
+      const errEl = document.getElementById("atsError");
+      const btn = document.getElementById("atsBtn");
+      errEl.textContent = "";
+
+      if (!jd) {
+        errEl.textContent = "Please paste a job description.";
         return;
       }
 
-      const MAX_ATTEMPTS = 20;   // 20 × 3s = 60 seconds
-      const INTERVAL_MS  = 3000;
+      btn.disabled = true;
+      btn.textContent = "Analyzing...";
+
+      try {
+        const res = await fetch("/api/ats", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: roastId, job_description: jd }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong.");
+
+        // Show ATS results
+        atsResultsEl.style.display = "block";
+        animateCounter(document.getElementById("scoreDisplay"), data.score, "%");
+        document.getElementById("scoreInterpretation").textContent =
+          getScoreInterpretation(data.score);
+
+        if (data.missing && data.missing.length > 0) {
+          const missingSection = document.getElementById("missingSection");
+          missingSection.style.display = "";
+          const pillList = document.getElementById("missingPills");
+          pillList.innerHTML = "";
+          data.missing.forEach(kw => {
+            const pill = document.createElement("span");
+            pill.className = "pill pill-missing";
+            pill.textContent = kw;
+            pillList.appendChild(pill);
+          });
+        }
+
+        // Hide the input form, show "after ATS" upsell
+        document.getElementById("atsJobDesc").style.display = "none";
+        btn.style.display = "none";
+        atsCompleted = true;
+
+        // Show the post-ATS upsell
+        upsellAfterAtsEl.style.display = "block";
+
+      } catch (err) {
+        errEl.textContent = err.message;
+        btn.disabled = false;
+        btn.innerHTML = "Get My ATS Score — Free &rarr;";
+      }
+    }
+
+    // ── Buy tailoring (CTA) ──────────────────────────────────────────────
+
+    async function buyTailoring() {
+      const btn = atsCompleted
+        ? document.getElementById("upsellBtnAts")
+        : document.getElementById("upsellBtnNoAts");
+      const errEl = atsCompleted
+        ? document.getElementById("upsellErrorAts")
+        : document.getElementById("upsellErrorNoAts");
+      errEl.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "Redirecting to payment...";
+
+      try {
+        const payload = { roastId };
+
+        const res = await fetch("/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong.");
+        window.location.href = data.url;
+      } catch (err) {
+        errEl.textContent = err.message;
+        btn.disabled = false;
+        btn.innerHTML = atsCompleted
+          ? "Fix It — Tailored Rewrite &rarr; $9"
+          : "Get a Tailored Rewrite &rarr; $9";
+      }
+    }
+
+    // Handle the no-ATS upsell — first click expands JD field, second click buys
+    function handleNoAtsUpsell() {
+      const jdWrap = document.getElementById("upsellJdWrap");
+      const jd = document.getElementById("upsellJobDesc").value.trim();
+
+      if (jdWrap.style.display === "none" || jdWrap.style.display === "") {
+        // First click — expand the JD field
+        jdWrap.style.display = "block";
+        document.getElementById("upsellBtnNoAts").innerHTML = "Get a Tailored Rewrite &rarr; $9";
+        document.getElementById("upsellJobDesc").focus();
+        return;
+      }
+
+      if (!jd) {
+        document.getElementById("upsellErrorNoAts").textContent = "Please paste a job description to get your tailored rewrite.";
+        return;
+      }
+
+      // Submit the JD first via /api/ats to store it, then buy
+      const btn = document.getElementById("upsellBtnNoAts");
+      const errEl = document.getElementById("upsellErrorNoAts");
+      errEl.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "Redirecting to payment...";
+
+      (async () => {
+        try {
+          // Store JD on the record via /api/ats
+          const atsRes = await fetch("/api/ats", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: roastId, job_description: jd }),
+          });
+          if (!atsRes.ok) {
+            const atsData = await atsRes.json();
+            throw new Error(atsData.error || "Failed to process job description.");
+          }
+
+          // Now buy tailoring
+          const res = await fetch("/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roastId }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Something went wrong.");
+          window.location.href = data.url;
+        } catch (err) {
+          errEl.textContent = err.message;
+          btn.disabled = false;
+          btn.innerHTML = "Get a Tailored Rewrite &rarr; $9";
+        }
+      })();
+    }
+
+    // ── Poll for free roast ──────────────────────────────────────────────
+
+    async function pollFreeRoast() {
+      if (!roastId) {
+        loadingEl.style.display = "none";
+        return;
+      }
+
+      const MAX = 30;
+      const INTERVAL = 2000;
       let attempts = 0;
 
       async function attempt() {
         attempts++;
-        pollStatus.textContent = `Checking… (${attempts}/${MAX_ATTEMPTS})`;
+        pollStatus.textContent = `Checking\u2026 (${attempts}/${MAX})`;
 
         try {
-          const res  = await fetch(`/api/result?session_id=${encodeURIComponent(sessionId)}`);
+          const res = await fetch(`/api/roast?id=${encodeURIComponent(roastId)}`);
           const data = await res.json();
 
-          if (!res.ok) {
-            throw new Error(data.error || "Failed to load results.");
-          }
+          if (!res.ok) throw new Error(data.error || "Failed to load results.");
 
           if (data.status === "ready") {
             loadingEl.style.display = "none";
-            renderScoreComparison(data.beforeScore ?? null, data.afterScore ?? null);
-            resultEl.innerHTML = renderResult(data.result);
+
+            // Show roast
+            resultEl.innerHTML = renderRoast(data.roast);
             resultEl.style.display = "block";
+
+            // Show Phase 2: ATS step (only if not returning from payment)
+            if (!sessionId) {
+              atsStepEl.style.display = "block";
+              // Also show the no-ATS upsell as fallback
+              upsellNoAtsEl.style.display = "block";
+            }
+
             return;
           }
 
-          // Still generating — keep polling if under limit
-          if (attempts < MAX_ATTEMPTS) {
-            setTimeout(attempt, INTERVAL_MS);
+          if (attempts < MAX) {
+            setTimeout(attempt, INTERVAL);
           } else {
-            showError("Your roast is taking longer than expected. Please refresh the page to check again.");
+            showError("Your roast is taking longer than expected. Please refresh the page.");
           }
         } catch (err) {
           showError(err.message);
@@ -696,7 +1118,63 @@
       attempt();
     }
 
-    pollResult();
+    // ── Poll for paid result ─────────────────────────────────────────────
+
+    async function pollPaidResult() {
+      if (!sessionId) return;
+
+      // Hide all upsell sections, show paid loading
+      atsStepEl.style.display = "none";
+      upsellAfterAtsEl.style.display = "none";
+      upsellNoAtsEl.style.display = "none";
+      paidLoadingEl.style.display = "block";
+
+      const MAX = 20;
+      const INTERVAL = 3000;
+      let attempts = 0;
+
+      async function attempt() {
+        attempts++;
+        paidPollStatus.textContent = `Checking\u2026 (${attempts}/${MAX})`;
+
+        try {
+          const res = await fetch(`/api/result?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.error || "Failed to load results.");
+
+          if (data.status === "ready") {
+            paidLoadingEl.style.display = "none";
+            renderScoreComparison(data.beforeScore ?? null, data.afterScore ?? null);
+            paidResultEl.innerHTML = renderPaidResult(data.result);
+            paidResultEl.style.display = "block";
+            return;
+          }
+
+          if (attempts < MAX) {
+            setTimeout(attempt, INTERVAL);
+          } else {
+            paidLoadingEl.style.display = "none";
+            showError("Your tailored resume is taking longer than expected. Please refresh the page.");
+          }
+        } catch (err) {
+          paidLoadingEl.style.display = "none";
+          showError(err.message);
+        }
+      }
+
+      attempt();
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────
+
+    if (!roastId && !sessionId) {
+      showError("No session found. Please start over.");
+    } else {
+      pollFreeRoast().then(() => {
+        if (sessionId) pollPaidResult();
+      });
+    }
   </script>
 </body>
 </html>

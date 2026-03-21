@@ -23,7 +23,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS jobs (
     id TEXT PRIMARY KEY,
     resume TEXT NOT NULL,
-    job_description TEXT NOT NULL,
+    job_description TEXT NOT NULL DEFAULT '',
     email TEXT,
     paid INTEGER NOT NULL DEFAULT 0,
     result TEXT,
@@ -51,12 +51,24 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS ats_checks (
     id TEXT PRIMARY KEY,
     resume TEXT NOT NULL,
-    job_description TEXT NOT NULL,
-    score INTEGER NOT NULL,
-    missing_keywords TEXT NOT NULL,
+    job_description TEXT NOT NULL DEFAULT '',
+    score INTEGER NOT NULL DEFAULT 0,
+    missing_keywords TEXT NOT NULL DEFAULT '[]',
+    roast_result TEXT,
+    mode TEXT NOT NULL DEFAULT 'ats-roast',
     created_at INTEGER NOT NULL
   )
 `);
+
+// Add roast_result column if it doesn't exist (migration for existing DBs)
+try {
+  db.exec(`ALTER TABLE ats_checks ADD COLUMN roast_result TEXT`);
+} catch (_) { /* column already exists */ }
+
+// Add mode column to ats_checks (roast-only vs ats-roast)
+try {
+  db.exec(`ALTER TABLE ats_checks ADD COLUMN mode TEXT NOT NULL DEFAULT 'ats-roast'`);
+} catch (_) { /* column already exists */ }
 
 // Prepared statements
 const stmtInsert = db.prepare(
@@ -70,11 +82,12 @@ const stmtDelete = db.prepare(`DELETE FROM jobs WHERE created_at < ?`);
 
 // ATS checks statements
 const stmtAtsInsert = db.prepare(
-  `INSERT INTO ats_checks (id, resume, job_description, score, missing_keywords, created_at)
-   VALUES (@id, @resume, @job_description, @score, @missing_keywords, @created_at)`
+  `INSERT INTO ats_checks (id, resume, job_description, score, missing_keywords, mode, created_at)
+   VALUES (@id, @resume, @job_description, @score, @missing_keywords, @mode, @created_at)`
 );
 const stmtAtsGet = db.prepare(`SELECT * FROM ats_checks WHERE id = ?`);
 const stmtAtsDelete = db.prepare(`DELETE FROM ats_checks WHERE created_at < ?`);
+const stmtAtsUpdateRoast = db.prepare(`UPDATE ats_checks SET score = @score, missing_keywords = @missing_keywords, roast_result = @roast_result WHERE id = @id`);
 
 function cleanOldJobs() {
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;
@@ -90,6 +103,7 @@ setInterval(cleanOldJobs, 60 * 60 * 1000);
 
 // ─── In-memory Set to track which jobs are currently being generated ─────────
 const generating = new Set();
+const generatingRoasts = new Set();
 
 // ─── Generate .docx from resume markdown text ────────────────────────────────
 async function generateResumeDocx(resumeText) {
@@ -256,9 +270,10 @@ app.post(
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
+      const email = session.customer_details?.email || null;
+
       const job = stmtGet.get(session.id);
       if (job) {
-        const email = session.customer_details?.email || null;
         stmtUpdate.run({ paid: 1, email, id: session.id });
         console.log(`Payment confirmed via webhook for session ${session.id}${email ? ` (${email})` : ""}`);
       }
@@ -599,38 +614,110 @@ app.post("/ats-score", async (req, res) => {
     job_description: jobDescription,
     score,
     missing_keywords: JSON.stringify(missing),
+    mode: "ats-roast",
     created_at: Date.now(),
   });
 
   res.json({ id, score, missing, present, total });
 });
 
-// Create Stripe Checkout session
-app.post("/create-checkout-session", async (req, res) => {
-  const { atsId } = req.body;
+// ─── Free roast generation — resume only, no JD ─────────────────────────────
+app.post("/api/generate", async (req, res) => {
+  const { resume } = req.body;
 
-  // If atsId is provided, load resume + job_description from ats_checks
-  let resume = req.body.resume;
-  let jobDescriptionRaw = req.body.jobDescription;
-  let jobUrl = req.body.jobUrl;
+  if (!resume) {
+    return res.status(400).json({ error: "Resume is required." });
+  }
 
-  if (atsId) {
-    const atsRow = stmtAtsGet.get(atsId);
-    if (!atsRow) {
-      return res.status(404).json({ error: "ATS check not found or expired." });
+  if (resume.length > 15000) {
+    return res.status(400).json({ error: "Resume must be under 15,000 characters. Please trim and try again." });
+  }
+
+  const id = require("crypto").randomBytes(16).toString("hex");
+
+  stmtAtsInsert.run({
+    id,
+    resume,
+    job_description: "",
+    score: 0,
+    missing_keywords: "[]",
+    mode: "roast-only",
+    created_at: Date.now(),
+  });
+
+  generatingRoasts.add(id);
+  res.json({ id });
+
+  // Fire and forget — generate roast in background
+  (async () => {
+    try {
+      const roastMsg = await anthropic.messages.create({
+        model: "claude-haiku-4-5",
+        max_tokens: 2048,
+        system: `You are a savage but brilliant career coach who has seen thousands of resumes and has zero patience for mediocrity. You roast resumes like a comedian roasts a celebrity — cutting, specific, and brutally funny — but underneath the burn is genuine expertise that actually helps people get hired. You call out BS corporate speak, vague achievements, and lazy formatting without mercy. You're not cruel for the sake of it — you're the friend who tells you that spinach is in your teeth before the interview, not after. Pull no punches.`,
+        messages: [{
+          role: "user",
+          content: `Here is the resume:\n${resume.slice(0, 4000)}\n\nNo job description was provided. Roast this resume on its own merits.\n\n## THE ROAST\nGive 5-7 brutal, specific observations about what is weak, embarrassing, or actively hurting this resume. Tear it apart on:\n- Clichés and BS corporate speak ("results-driven", "passionate", "team player")\n- Weak verbs ("assisted", "helped", "supported")\n- Vague claims with no metrics or evidence\n- Missing numbers — revenue, users, %, team size, anything quantifiable\n- Formatting sins, redundancy, or wasted space\n- Skills section crimes (listing Microsoft Office in 2026, etc.)\n- Anything that would make a hiring manager roll their eyes\n\nBe merciless and specific — call out exact phrases from the resume. Use dry humor where it lands naturally. Don't hold back. Don't soften with disclaimers. No ATS analysis (there's no job to compare against).`
+        }]
+      });
+
+      stmtAtsUpdateRoast.run({
+        id,
+        score: 0,
+        missing_keywords: "[]",
+        roast_result: roastMsg.content[0].text,
+      });
+
+    } catch (err) {
+      console.error("Free roast generation failed:", err.message);
+      try {
+        stmtAtsUpdateRoast.run({
+          id,
+          score: 0,
+          missing_keywords: "[]",
+          roast_result: "## THE ROAST\n\nSomething went wrong generating your roast. Please try again.",
+        });
+      } catch (_) {}
+    } finally {
+      generatingRoasts.delete(id);
     }
-    resume = atsRow.resume;
-    jobDescriptionRaw = atsRow.job_description;
-    jobUrl = null; // already resolved
+  })();
+});
+
+// Poll for free roast result
+app.get("/api/roast", async (req, res) => {
+  const { id } = req.query;
+  if (!id) return res.status(400).json({ error: "Missing id." });
+
+  const row = stmtAtsGet.get(id);
+  if (!row) return res.status(404).json({ error: "Not found or expired." });
+
+  if (!row.roast_result) {
+    if (generatingRoasts.has(id)) return res.json({ status: "generating" });
+    return res.status(404).json({ error: "Not found or expired." });
   }
 
-  if (!resume || (!jobDescriptionRaw && !jobUrl)) {
-    return res.status(400).json({ error: "Resume and job description (or URL) are required." });
+  return res.json({
+    status: "ready",
+    roast: row.roast_result,
+  });
+});
+
+// ─── Free ATS score — accepts roast ID + job description, runs ATS analysis ──
+app.post("/api/ats", async (req, res) => {
+  const { id, job_description: jdRaw, jobUrl, targetRole } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing roast ID." });
   }
 
-  let jobDescription = jobDescriptionRaw || "";
+  const row = stmtAtsGet.get(id);
+  if (!row) {
+    return res.status(404).json({ error: "Session not found or expired." });
+  }
 
-  // If a URL was provided instead of pasted text, fetch and extract it
+  let jobDescription = jdRaw || "";
+
   if (jobUrl) {
     try {
       const controller = new AbortController();
@@ -646,8 +733,7 @@ app.post("/create-checkout-session", async (req, res) => {
       }
       if (!fetchRes.ok) throw new Error(`HTTP ${fetchRes.status}`);
       const html = await fetchRes.text();
-      const text = stripHtml(html);
-      jobDescription = text.slice(0, 4000);
+      jobDescription = stripHtml(html).slice(0, 4000);
     } catch (err) {
       console.error("Failed to fetch job URL:", err.message);
       return res.status(422).json({
@@ -656,8 +742,50 @@ app.post("/create-checkout-session", async (req, res) => {
     }
   }
 
-  if (resume.length > 15000 || jobDescription.length > 8000) {
-    return res.status(400).json({ error: "Resume must be under 15,000 characters and job description under 8,000. Please trim and try again." });
+  if (!jobDescription && targetRole) {
+    try {
+      jobDescription = await generateSyntheticJD(targetRole);
+    } catch (err) {
+      console.error("Failed to generate synthetic JD:", err.message);
+      return res.status(500).json({ error: "Failed to analyze target role. Please paste a job description instead." });
+    }
+  }
+
+  if (!jobDescription) {
+    return res.status(400).json({ error: "A job description is required." });
+  }
+
+  if (jobDescription.length > 8000) {
+    return res.status(400).json({ error: "Job description must be under 8,000 characters." });
+  }
+
+  const { score, missing, present, total } = await computeAtsScore(row.resume, jobDescription);
+
+  // Store JD and ATS results on the record
+  db.prepare(`UPDATE ats_checks SET job_description = ?, score = ?, missing_keywords = ? WHERE id = ?`)
+    .run(jobDescription, score, JSON.stringify(missing), id);
+
+  res.json({ score, missing, present, total });
+});
+
+// Create Stripe Checkout session ($9 tailoring)
+app.post("/create-checkout-session", async (req, res) => {
+  const { roastId } = req.body;
+
+  if (!roastId) {
+    return res.status(400).json({ error: "Missing roast ID." });
+  }
+
+  const atsRow = stmtAtsGet.get(roastId);
+  if (!atsRow) {
+    return res.status(404).json({ error: "Session not found or expired." });
+  }
+
+  const resume = atsRow.resume;
+  const jobDescription = atsRow.job_description || "";
+
+  if (!jobDescription) {
+    return res.status(400).json({ error: "A job description is required to tailor your resume. Please add one first." });
   }
 
   try {
@@ -668,8 +796,8 @@ app.post("/create-checkout-session", async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "Resume Roast & Rewrite",
-              description: "AI-powered brutal resume review + professional rewrite",
+              name: "Tailored Resume Rewrite",
+              description: "Job-tailored resume rewrite + Top 3 Wins + AI-Proof Case",
             },
             unit_amount: 900,
           },
@@ -677,12 +805,13 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
+      metadata: { type: "tailor", roast_id: roastId || "" },
       allow_promotion_codes: true,
       billing_address_collection: "auto",
       customer_creation: "if_required",
       phone_number_collection: { enabled: false },
-      success_url: `${req.protocol}://${req.get("host")}/result.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.protocol}://${req.get("host")}/`,
+      success_url: `${req.protocol}://${req.get("host")}/result.html?id=${roastId || ""}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.protocol}://${req.get("host")}/result.html?id=${roastId || ""}`,
     });
 
     stmtInsert.run({
@@ -692,7 +821,7 @@ app.post("/create-checkout-session", async (req, res) => {
       email: null,
       paid: 0,
       result: null,
-      ats_id: atsId || null,
+      ats_id: roastId || null,
       created_at: Date.now(),
     });
 
@@ -759,18 +888,18 @@ You are rewriting a real person's resume. The following are HARD rules that over
 1. DO NOT add any skill, technology, tool, project, job, achievement, or responsibility that is not already present in the original resume text. If it's not there, it doesn't go in the rewrite. Period.
 2. DO NOT invent metrics or numbers. If the resume says "improved performance", you may rewrite it as "improved performance" — you may NOT rewrite it as "improved performance by 40%".
 3. DO NOT add job titles, company names, or work experiences that don't exist in the original.
-4. If the job description requires a skill or technology that is completely absent from the resume, call it out in the ROAST. Tell them to add it if they genuinely have the experience. Do not silently slip it into the rewrite.
+4. If the job description requires a skill or technology that is completely absent from the resume, note it in the rewrite as a gap. Do not silently slip it into the rewrite.
 5. Your job is to SHARPEN and RESTRUCTURE what already exists — better verbs, clearer framing, stronger language — not to manufacture a new resume from thin air.
 
 Violations of these rules cause real harm: people get hired for jobs they're not qualified for, fail probation, and lose trust. Don't lie on their behalf.
 
 ---
 
-You are a savage but brilliant career coach who has seen thousands of resumes and has zero patience for mediocrity. You roast resumes like a comedian roasts a celebrity — cutting, specific, and brutally funny — but underneath the burn is genuine expertise that actually helps people get hired. You call out BS corporate speak, vague achievements, and lazy formatting without mercy. You're not cruel for the sake of it — you're the friend who tells you that spinach is in your teeth before the interview, not after. Pull no punches. Make them wince, then make them better. You also help candidates articulate why they're harder to replace with AI than their peers — specific, credible, not generic.`,
+You are a brilliant career coach who helps candidates get hired. You also help candidates articulate why they're harder to replace with AI than their peers — specific, credible, not generic.`,
         messages: [
           {
             role: "user",
-            content: `Here is the resume:\n${job.resume}\n\nHere is the job description they are targeting:\n${job.job_description}\n\nPlease provide:\n\n1. **ATS KEYWORD ANALYSIS** - Most resumes get filtered by Applicant Tracking Systems before a human ever reads them. Analyze this resume against the job description like an ATS would. Provide:\n   - DO NOT output a numerical ATS score or percentage — that is calculated separately by our system. Do not write things like "ATS Match Score: X%". Skip any score number entirely.\n   - The top 8-12 keywords/phrases from the job description that are MISSING from the resume (be specific: exact phrases, technical skills, tools, methodologies, job titles mentioned)\n   - The top 5 keywords already present (quick wins to acknowledge)\n   - 3 specific sentences they should add or rewrite to improve their ATS score, with the exact keywords inserted naturally. ONLY suggest adding keywords that reflect real experience from the resume — do not suggest adding skills or technologies that are completely absent from their background.\n   Be precise and specific — this is the section that explains why they're getting ghosted.\n\n2. **THE ROAST** - 5-7 specific, savage observations about what is weak, embarrassing, or actively hurting this resume for THIS specific job. Be merciless and specific — no generic advice. Call out exact phrases, missing numbers, vague claims, and anything that would make a hiring manager roll their eyes. Use dry humor where it lands naturally. Don't hold back.\n\n3. **THE FIX** - A fully rewritten, optimized version of their resume tailored for this exact job. REMEMBER: you may only use skills, technologies, jobs, and experiences that appear in the original resume above. Do not add anything new. Sharpen and reframe what exists.\n\n4. **TOP 3 WINS** - 3 things they actually did right that they should keep. Be genuine here — no fake positivity, only real strengths worth keeping.\n\n5. **YOUR AI-PROOF CASE** - This is 2026. Every hiring manager is wondering if they should just use AI instead of hiring a human. Based on this specific resume and this specific job, write 3-5 sharp, specific reasons why THIS person is harder to replace with AI than a typical candidate. Don't be generic ("humans are creative!") — be specific to their actual experience and the actual role. Call out real things: domain relationships, institutional knowledge, physical presence requirements, judgment in ambiguous situations, client trust, team dynamics, things that require being a specific human in a specific context. If their resume doesn't give you enough to work with, say so in the roast and tell them what to add to make their AI-proof case stronger.\n\nFormat it clearly with those five sections. Don't soften the roast with disclaimers — they paid for the truth.`,
+            content: `Here is the resume:\n${job.resume}\n\nHere is the job description they are targeting:\n${job.job_description}\n\nPlease provide these three sections:\n\n1. **THE FIX** - A fully rewritten, optimized version of their resume tailored for this exact job. REMEMBER: you may only use skills, technologies, jobs, and experiences that appear in the original resume above. Do not add anything new. Sharpen and reframe what exists.\n\n2. **TOP 3 WINS** - 3 things they actually did right that they should keep. Be genuine here — no fake positivity, only real strengths worth keeping.\n\n3. **YOUR AI-PROOF CASE** - This is 2026. Every hiring manager is wondering if they should just use AI instead of hiring a human. Based on this specific resume and this specific job, write 3-5 sharp, specific reasons why THIS person is harder to replace with AI than a typical candidate. Don't be generic ("humans are creative!") — be specific to their actual experience and the actual role. Call out real things: domain relationships, institutional knowledge, physical presence requirements, judgment in ambiguous situations, client trust, team dynamics, things that require being a specific human in a specific context. If their resume doesn't give you enough to work with, tell them what to add to make their AI-proof case stronger.\n\nFormat it clearly with those three sections.`,
           },
         ],
       });
@@ -802,7 +931,18 @@ You are a savage but brilliant career coach who has seen thousands of resumes an
         if (rewrittenResume) {
           try { docxBuffer = await generateResumeDocx(rewrittenResume); } catch (e) { console.error("docx generation failed:", e.message); }
         }
-        await sendRoastEmail(freshJob.email, result, docxBuffer);
+        // Bundle roast + ATS score + full report in the email
+        const atsRow = db.prepare(`SELECT roast_result, score, missing_keywords FROM ats_checks WHERE id = ?`).get(session_id);
+        let fullEmailContent = "";
+        if (atsRow?.roast_result) {
+          fullEmailContent += atsRow.roast_result + "\n\n---\n\n";
+        }
+        if (atsRow?.score != null) {
+          const missing = atsRow.missing_keywords ? JSON.parse(atsRow.missing_keywords).slice(0, 8).join(", ") : "";
+          fullEmailContent += `## ATS SCORE: ${atsRow.score}/100\n\n**Top missing keywords:** ${missing}\n\n---\n\n`;
+        }
+        fullEmailContent += result;
+        await sendRoastEmail(freshJob.email, fullEmailContent, docxBuffer);
       }
     } catch (err) {
       console.error("Claude API call failed:", err.message);
@@ -819,7 +959,7 @@ app.get("/download-resume/:id", async (req, res) => {
   if (!job || !job.paid || !job.result) return res.status(404).send("Not found");
 
   // Extract THE FIX section
-  const fixMatch = job.result.match(/##\s*(?:3\.?\s*)?THE FIX[\s\S]*?\n([\s\S]*?)(?=\n##\s*(?:4\.?\s*)?TOP|\n##\s*(?:5\.?\s*)?YOUR|$)/i);
+  const fixMatch = job.result.match(/##\s*(?:\d\.?\s*)?THE FIX[\s\S]*?\n([\s\S]*?)(?=\n##\s*(?:\d\.?\s*)?TOP|\n##\s*(?:\d\.?\s*)?YOUR|$)/i);
   const rewrittenResume = fixMatch ? fixMatch[1].trim() : job.result;
 
   try {

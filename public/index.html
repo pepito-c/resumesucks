@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ResumeSucks – AI Resume Roast & Rewrite for $9</title>
-  <meta name="description" content="Paste your resume and target job. Get a brutal AI-powered critique + full rewrite for $9. Find out exactly why you're not getting callbacks.">
-  <meta property="og:title" content="ResumeSucks.com – Your Resume Sucks. Let Us Prove It.">
-  <meta property="og:description" content="AI-powered brutal resume review + full rewrite tailored to your target job. $9 one-time. No fluff.">
+  <title>ResumeSucks – Free Brutal Resume Roast</title>
+  <meta name="description" content="Upload your resume. Get a brutal honest roast. Then fix it with a tailored rewrite for $9.">
+  <meta property="og:title" content="ResumeSucks.com – Your Resume Sucks. Find Out Why — Free.">
+  <meta property="og:description" content="Free brutal roast. Then a free ATS score. Tailored resume rewrite for $9.">
   <meta property="og:url" content="https://resumesucks.com">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="ResumeSucks.com – AI Resume Roast for $9">
-  <meta name="twitter:description" content="Brutal AI resume critique + full rewrite for your target job. $9. Find out why you're not getting interviews.">
+  <meta name="twitter:title" content="ResumeSucks.com – Your Resume Sucks. Find Out Why — Free.">
+  <meta name="twitter:description" content="Free brutal resume roast. Then fix it with a tailored rewrite for $9.">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -165,43 +165,6 @@
       display: none;
     }
 
-    /* ── Job URL input ───────────────────────────────────────────────────── */
-    .url-input {
-      width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: #e0e0e0;
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 14px 16px;
-      transition: border-color 0.2s;
-      height: 52px;
-    }
-
-    .url-input:focus {
-      outline: none;
-      border-color: #ff4d4d;
-    }
-
-    .url-input::placeholder { color: #555; }
-
-    /* ── Job input toggle link ───────────────────────────────────────────── */
-    .job-input-toggle {
-      display: inline-block;
-      margin-top: 8px;
-      font-size: 0.8rem;
-      color: #555;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s;
-      user-select: none;
-    }
-
-    .job-input-toggle:hover {
-      color: #999;
-    }
-
     /* ── CTA ─────────────────────────────────────────────────────────────── */
     .cta-wrap { text-align: center; margin-top: 8px; }
 
@@ -245,115 +208,7 @@
       min-height: 1.4em;
     }
 
-    /* ── Score reveal section ─────────────────────────────────────────────── */
-    #scoreReveal {
-      display: none;
-      margin-top: 40px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 36px 32px;
-    }
-
-    #scoreReveal.visible { display: block; }
-
-    .score-header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-
-    .score-header h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #888;
-      margin-bottom: 8px;
-    }
-
-    .score-number-big {
-      font-size: 4rem;
-      font-weight: 800;
-      color: #ff9500;
-      line-height: 1;
-      display: block;
-    }
-
-    .score-interpretation {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: #ccc;
-    }
-
-    .keywords-section {
-      margin-top: 24px;
-    }
-
-    .keywords-section h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 12px;
-    }
-
-    .pill-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .pill {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-    }
-
-    .pill-missing {
-      background: rgba(255, 77, 77, 0.12);
-      border: 1px solid rgba(255, 77, 77, 0.35);
-      color: #ff8080;
-    }
-
-    .pill-present {
-      background: rgba(77, 255, 145, 0.1);
-      border: 1px solid rgba(77, 255, 145, 0.3);
-      color: #4dff91;
-      font-size: 0.78rem;
-    }
-
-    .upsell-block {
-      text-align: center;
-      margin-top: 36px;
-      padding-top: 28px;
-      border-top: 1px solid #2a2a2a;
-    }
-
-    .upsell-btn {
-      display: inline-block;
-      background: #ff9500;
-      color: #fff;
-      font-size: 1.15rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 8px;
-      padding: 18px 48px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .upsell-btn:hover { background: #e08600; }
-    .upsell-btn:active { transform: scale(0.98); }
-    .upsell-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .upsell-sub {
-      margin-top: 12px;
-      color: #666;
-      font-size: 0.82rem;
-      line-height: 1.6;
-    }
+    /* Score reveal, upsell, pill styles removed — moved to result.html */
 
     /* ── What You Get (below fold) ───────────────────────────────────────── */
     .features-section {
@@ -636,30 +491,6 @@
       white-space: pre-wrap;
     }
 
-    /* Hidden mode buttons — kept for JS compatibility */
-    .mode-btn { display: none; }
-
-    /* ── Input mode toggle (legacy, hidden) ─────────────────────────────── */
-    .url-input {
-      width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: #e0e0e0;
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 14px 16px;
-      transition: border-color 0.2s;
-      height: 52px;
-    }
-
-    .url-input:focus {
-      outline: none;
-      border-color: #ff4d4d;
-    }
-
-    .url-input::placeholder { color: #555; }
-
     /* ── Mobile ──────────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       h1 { font-size: 2rem; }
@@ -687,16 +518,16 @@
 
     <!-- ── Hero ──────────────────────────────────────────────────────────── -->
     <header>
-      <h1>Find Out Exactly Why You're<br>Not Getting <span>Callbacks</span></h1>
-      <p class="subheadline">Paste your resume and the job you want. See exactly which keywords you're missing and get a brutally honest review of what's holding you back.</p>
+      <h1>Your Resume <span>Sucks</span>.<br>Find Out Why — Free.</h1>
+      <p class="subheadline">Upload your resume. Get a brutal honest roast. Then fix it.</p>
     </header>
 
     <!-- ── Form ──────────────────────────────────────────────────────────── -->
     <form id="roastForm">
 
-      <!-- Step 1 — Resume -->
+      <!-- Resume upload -->
       <div class="form-step">
-        <span class="step-label">Step 1 — Your Resume</span>
+        <span class="step-label">Your Resume</span>
         <div class="pdf-drop-zone" id="resumeDropZone">
           <div class="drop-zone-header">
             <span class="drop-zone-icon">📄</span>
@@ -712,78 +543,48 @@
         <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
       </div>
 
-      <!-- Step 2 — Job (optional) -->
-      <div class="form-step">
-        <span class="step-label">Step 2 — The Job</span>
-        <textarea id="jobSmartInput" placeholder="Paste a job URL, the full job description, or just the role — e.g. &quot;Senior PM at a fintech startup&quot;" rows="3" maxlength="8000" style="resize:vertical;"></textarea>
-        <p style="font-size:0.78rem;color:#555;margin-top:6px;">Job URL, full description, or just the role title — any format works.</p>
-        <!-- Hidden fields — preserved for JS form submit compatibility -->
-        <input type="url" id="jobUrl" style="display:none;">
-        <textarea id="jobDescription" name="jobDescription" maxlength="8000" style="display:none;"></textarea>
-      </div>
-
       <div class="cta-wrap">
-        <button type="submit" class="cta" id="ctaBtn">See What's Missing — <span style="text-decoration:underline;">Free</span> &rarr;</button>
-        <p class="trust-line">Instant. No payment. See exactly which keywords you're missing in seconds.</p>
+        <button type="submit" class="cta" id="ctaBtn">Roast My Resume — <span style="text-decoration:underline;">FREE</span> &rarr;</button>
+        <p class="trust-line">Instant. No payment. No job description needed. Get a savage roast in seconds.</p>
         <p class="privacy-line">🔒 Powered by AI &mdash; your resume is never stored, sold, or used for training. Deleted after your report is generated.</p>
       </div>
       <p class="error-msg" id="errorMsg"></p>
     </form>
 
-    <!-- ── Score Reveal (hidden until submit) ────────────────────────────── -->
-    <div id="scoreReveal">
-      <div class="score-header">
-        <h2>Your Keyword Gap Analysis</h2>
-        <span class="score-number-big" id="scoreDisplay">0%</span>
-        <p class="score-interpretation" id="scoreInterpretation"></p>
-      </div>
-
-      <div class="keywords-section" id="missingSection" style="display:none">
-        <h3>❌ Keywords ATS filters are scanning for (not found in your resume):</h3>
-        <div class="pill-list" id="missingPills"></div>
-      </div>
-
-      <div class="keywords-section" id="presentSection" style="display:none; margin-top:16px;">
-        <h3>✅ Keywords you have covered:</h3>
-        <div class="pill-list" id="presentPills"></div>
-      </div>
-
-      <div class="upsell-block">
-        <button class="upsell-btn" id="upsellBtn">Get the Full Analysis — Roast, Rewrite &amp; Fix &rarr; $9</button>
-        <p class="upsell-sub">Includes brutal roast, full rewrite, AI-proof case, and specific sentences to add for each missing keyword</p>
-        <p class="privacy-line" style="margin-top:10px;">🔒 Powered by AI &mdash; your resume is never stored, sold, or used for training.</p>
-        <p class="error-msg" id="upsellErrorMsg"></p>
-      </div>
-    </div>
+    <!-- Score reveal removed — ATS score + roast now shown on result.html -->
 
     <!-- ── What You Get (below fold) ─────────────────────────────────────── -->
     <section class="features-section" aria-label="What you get">
-      <h2>What's in the full report ($9)</h2>
+      <h2>Free — Instant</h2>
       <div class="features-grid">
-        <div class="feature-card">
-          <span class="feature-icon">📊</span>
-          <span class="feature-title">ATS Score</span>
-          <span class="feature-desc">Your resume vs. the job description — scored. See exactly which keywords ATS filters are killing you on before a human ever reads it.</span>
-        </div>
         <div class="feature-card">
           <span class="feature-icon">🔥</span>
           <span class="feature-title">Brutal Roast</span>
-          <span class="feature-desc">6 specific reasons your resume is getting ignored — named, called out, no mercy.</span>
+          <span class="feature-desc">5-7 savage observations about what's hurting your resume — weak verbs, clichés, missing metrics. No mercy, no cost.</span>
         </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <span class="feature-title">Free ATS Score</span>
+          <span class="feature-desc">Got a job in mind? Add the job description after your roast and get a free ATS keyword match score.</span>
+        </div>
+      </div>
+
+      <h2 style="margin-top:36px;">$9 — Tailored Rewrite</h2>
+      <div class="features-grid">
         <div class="feature-card">
           <span class="feature-icon">✏️</span>
           <span class="feature-title">Full Rewrite</span>
           <span class="feature-desc">Your resume, rewritten for this exact job. Every bullet sharpened. Every weak verb replaced.</span>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">🤖</span>
-          <span class="feature-title">AI-Proof Case</span>
-          <span class="feature-desc">Why you're harder to replace than AI for this role — specific to your experience and the job.</span>
+          <span class="feature-icon">🏆</span>
+          <span class="feature-title">Top 3 Wins</span>
+          <span class="feature-desc">Your real strengths — not fake positivity, actual signal worth keeping and amplifying.</span>
         </div>
         <div class="feature-card">
-          <span class="feature-icon">🏆</span>
-          <span class="feature-title">What's Working</span>
-          <span class="feature-desc">3 real strengths to keep and amplify — not fake positivity, actual signal worth keeping.</span>
+          <span class="feature-icon">🤖</span>
+          <span class="feature-title">AI-Proof Case</span>
+          <span class="feature-desc">Why you're harder to replace than AI — specific to your experience and the job.</span>
         </div>
       </div>
     </section>
@@ -793,8 +594,8 @@
   <!-- ── Sample Roasts ────────────────────────────────────────────────────── -->
   <div class="container">
     <section class="sample-section" aria-label="Sample roasts">
-      <h2>Real Roasts — <span>See What We Actually Deliver</span></h2>
-      <p class="tagline">Three real examples: Alex Johnson (Senior PM), Jordan Lee (Senior SWE), and Sam Rivera (Head of Marketing).</p>
+      <h2>Sample Roasts — <span>This Is What You Get</span></h2>
+      <p class="tagline">Three real resumes, zero punches pulled. Free roast + free ATS score + paid rewrite.</p>
 
       <!-- Accordion item 1: Alex Johnson -->
       <button class="sample-toggle" data-target="sampleAlex" aria-expanded="false" aria-controls="sampleAlex">
@@ -1199,60 +1000,16 @@ HEAD OF MARKETING — BrandCo (2023–present)
       });
     });
 
-    // ── Job input: single smart box — auto-detects URL vs text ──────────
-
-    const jobDescTA      = document.getElementById("jobDescription");
-    const jobUrlInput    = document.getElementById("jobUrl");
-    const jobSmartInput  = document.getElementById("jobSmartInput");
-
-    function isUrl(val) {
-      return /^https?:\/\//i.test(val.trim());
-    }
-
-    // ── ATS Score form ────────────────────────────────────────────────────
-    const form        = document.getElementById("roastForm");
-    const btn         = document.getElementById("ctaBtn");
-    const errorMsg    = document.getElementById("errorMsg");
-    const scoreReveal = document.getElementById("scoreReveal");
-
-    let currentAtsId = null;
-
-    function getScoreInterpretation(score) {
-      if (score <= 40) return "🚨 High risk of being filtered";
-      if (score <= 65) return "⚠️ Borderline — many ATS will filter this";
-      if (score <= 85) return "✅ Decent match — room to improve";
-      return "🟢 Strong match";
-    }
-
-    function animateCounter(el, target, suffix) {
-      const duration = 800;
-      const start = performance.now();
-      function step(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.round(eased * target) + suffix;
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    function renderPills(container, keywords, pillClass) {
-      container.innerHTML = "";
-      keywords.forEach(kw => {
-        const pill = document.createElement("span");
-        pill.className = `pill ${pillClass}`;
-        pill.textContent = kw;
-        container.appendChild(pill);
-      });
-    }
+    // ── Form submit → generate roast → redirect to result.html ──────────
+    const form     = document.getElementById("roastForm");
+    const btn      = document.getElementById("ctaBtn");
+    const errorMsg = document.getElementById("errorMsg");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorMsg.textContent = "";
 
       const resume = document.getElementById("resume").value.trim();
-      const jobRaw = jobSmartInput.value.trim();
 
       if (!resume) {
         errorMsg.textContent = "Please add your resume.";
@@ -1260,97 +1017,25 @@ HEAD OF MARKETING — BrandCo (2023–present)
       }
 
       btn.disabled = true;
-      btn.textContent = "Analyzing your resume...";
-      scoreReveal.classList.remove("visible");
+      btn.textContent = "Generating your roast...";
 
       try {
-        const payload = { resume };
-        if (!jobRaw) {
-          errorMsg.textContent = "Please add a job URL, description, or target role.";
-          btn.disabled = false;
-          btn.textContent = "See What's Missing — Free →";
-          return;
-        } else if (isUrl(jobRaw)) {
-          payload.jobUrl = jobRaw;
-        } else if (jobRaw.length > 300) {
-          // Long text = full job description
-          payload.jobDescription = jobRaw;
-        } else {
-          // Short text = target role (e.g. "Senior PM at a fintech startup")
-          payload.targetRole = jobRaw;
-        }
-
-        const res = await fetch("/ats-score", {
+        const res = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ resume }),
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong.");
 
-        currentAtsId = data.id;
-
-        scoreReveal.classList.add("visible");
-        scoreReveal.scrollIntoView({ behavior: "smooth", block: "start" });
-
-        const scoreEl = document.getElementById("scoreDisplay");
-        animateCounter(scoreEl, data.score, "%");
-
-        document.getElementById("scoreInterpretation").textContent =
-          getScoreInterpretation(data.score);
-
-        if (data.missing && data.missing.length > 0) {
-          const missingSection = document.getElementById("missingSection");
-          missingSection.style.display = "";
-          renderPills(document.getElementById("missingPills"), data.missing, "pill-missing");
-        }
-
-        if (data.present && data.present.length > 0) {
-          const presentSection = document.getElementById("presentSection");
-          presentSection.style.display = "";
-          renderPills(document.getElementById("presentPills"), data.present, "pill-present");
-        }
+        // Redirect to result page
+        window.location.href = `/result.html?id=${data.id}`;
 
       } catch (err) {
         errorMsg.textContent = err.message;
-      } finally {
         btn.disabled = false;
-        btn.textContent = "See What's Missing — Free →";
-      }
-    });
-
-    // ── Upsell button → Stripe checkout ──────────────────────────────────
-    const upsellBtn      = document.getElementById("upsellBtn");
-    const upsellErrorMsg = document.getElementById("upsellErrorMsg");
-
-    upsellBtn.addEventListener("click", async () => {
-      upsellErrorMsg.textContent = "";
-      upsellBtn.disabled = true;
-      upsellBtn.textContent = "Redirecting to payment...";
-
-      try {
-        const payload = currentAtsId
-          ? { atsId: currentAtsId }
-          : {
-              resume: document.getElementById("resume").value.trim(),
-              jobDescription: isUrl(jobSmartInput.value.trim()) ? "" : jobSmartInput.value.trim(),
-              jobUrl: isUrl(jobSmartInput.value.trim()) ? jobSmartInput.value.trim() : "",
-            };
-
-        const res = await fetch("/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Something went wrong.");
-        window.location.href = data.url;
-      } catch (err) {
-        upsellErrorMsg.textContent = err.message;
-        upsellBtn.disabled = false;
-        upsellBtn.textContent = "Get the Full Analysis — Roast, Rewrite & Fix \u2192 $9";
+        btn.innerHTML = 'Roast My Resume — <span style="text-decoration:underline;">FREE</span> &rarr;';
       }
     });
   </script>
