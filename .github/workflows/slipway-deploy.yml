@@ -15,8 +15,8 @@ jobs:
         run: |
           RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           PAYLOAD=$(printf '{"run_url":"%s"}' "$RUN_URL")
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "da629a4ab6886d2f3727fac47db5fdd5db70e35aaa2a445688bbc031fda1dc1d" | awk '{print $2}')
-          curl -s -X POST https://app.slipway.cloud/webhooks/build_started/uz5b0nm67mw01jqga1pqp647 \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "7cfba48368c395e806031b5c245a60cc67dba3e63a78dc555a6f4fb93341be78" | awk '{print $2}')
+          curl -s -X POST https://app.slipway.cloud/webhooks/build_started/cx9ofr5k8666vk5yd8chgt3q \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD" || true
@@ -35,35 +35,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Dockerfile if missing
-        run: |-
-          if [ ! -f Dockerfile ]; then
-            if [ -f package.json ]; then
-              echo -e 'FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --omit=dev
-COPY . .
-CMD ["node", "server.js"]' > Dockerfile
-            elif [ -f Gemfile ]; then
-              echo -e 'FROM ruby:3.3-slim
-WORKDIR /app
-COPY Gemfile* ./
-RUN bundle install
-COPY . .
-CMD ["bundle", "exec", "ruby", "app.rb"]' > Dockerfile
-            elif [ -f requirements.txt ]; then
-              echo -e 'FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["python", "app.py"]' > Dockerfile
-            else
-              echo -e 'FROM ubuntu:22.04
-WORKDIR /app
-COPY . .' > Dockerfile
-            fi
+        run: |
+          if [ -f Dockerfile ]; then exit 0; fi
+          if [ -f package.json ]; then
+            BASE=node:18-alpine CMD='node server.js'
+          elif [ -f Gemfile ]; then
+            BASE=ruby:3.3-slim CMD='bundle exec ruby app.rb'
+          elif [ -f requirements.txt ]; then
+            BASE=python:3.11-slim CMD='python app.py'
+          else
+            BASE=ubuntu:22.04 CMD=''
           fi
+          { echo "FROM $BASE"; echo 'WORKDIR /app'; echo 'COPY . .'; [ -n "$CMD" ] && echo "CMD $CMD"; } > Dockerfile
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -79,8 +62,8 @@ COPY . .' > Dockerfile
       - name: Notify Slipway image ready
         run: |
           PAYLOAD='{"image":"ghcr.io/pepito-c/resumesucks:latest","sha":"'$GITHUB_SHA'"}'
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "da629a4ab6886d2f3727fac47db5fdd5db70e35aaa2a445688bbc031fda1dc1d" | awk '{print $2}')
-          curl -f -s -X POST https://app.slipway.cloud/webhooks/image_ready/uz5b0nm67mw01jqga1pqp647 \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "7cfba48368c395e806031b5c245a60cc67dba3e63a78dc555a6f4fb93341be78" | awk '{print $2}')
+          curl -f -s -X POST https://app.slipway.cloud/webhooks/image_ready/cx9ofr5k8666vk5yd8chgt3q \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD"
@@ -90,8 +73,8 @@ COPY . .' > Dockerfile
         if: failure()
         run: |
           PAYLOAD='{}'
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "da629a4ab6886d2f3727fac47db5fdd5db70e35aaa2a445688bbc031fda1dc1d" | awk '{print $2}')
-          curl -s -X POST https://app.slipway.cloud/webhooks/build_failed/uz5b0nm67mw01jqga1pqp647 \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "7cfba48368c395e806031b5c245a60cc67dba3e63a78dc555a6f4fb93341be78" | awk '{print $2}')
+          curl -s -X POST https://app.slipway.cloud/webhooks/build_failed/cx9ofr5k8666vk5yd8chgt3q \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD" || true
