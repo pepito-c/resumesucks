@@ -14,8 +14,8 @@ jobs:
       - name: Notify Slipway build started
         run: |
           PAYLOAD='{"run_url":"'"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"'"}'
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "a221d1ee176c1706c6abb35f4ab64af7a429ca3f32a268cfb0179927c7aaaf08" | awk '{print $2}')
-          curl -s -X POST https://app.slipway.cloud/webhooks/build_started/blmubjl98rqhhkahmk0ml4ow \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "584b4a15b302866e3577a82009dc89db7f8ff13f10feee2bb219f17a6a531485" | awk '{print $2}')
+          curl -s -X POST https://app.slipway.cloud/webhooks/build_started/xqq5joo5r5papb13o40rusqv \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD" || true
@@ -56,8 +56,8 @@ jobs:
       - name: Notify Slipway image ready
         run: |
           PAYLOAD='{"image":"ghcr.io/pepito-c/resumesucks:latest","sha":"'$GITHUB_SHA'"}'
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "a221d1ee176c1706c6abb35f4ab64af7a429ca3f32a268cfb0179927c7aaaf08" | awk '{print $2}')
-          curl -f -s -X POST https://app.slipway.cloud/webhooks/image_ready/blmubjl98rqhhkahmk0ml4ow \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "584b4a15b302866e3577a82009dc89db7f8ff13f10feee2bb219f17a6a531485" | awk '{print $2}')
+          curl -f -s -X POST https://app.slipway.cloud/webhooks/image_ready/xqq5joo5r5papb13o40rusqv \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD"
@@ -67,8 +67,8 @@ jobs:
         if: failure()
         run: |
           PAYLOAD='{}'
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "a221d1ee176c1706c6abb35f4ab64af7a429ca3f32a268cfb0179927c7aaaf08" | awk '{print $2}')
-          curl -s -X POST https://app.slipway.cloud/webhooks/build_failed/blmubjl98rqhhkahmk0ml4ow \
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "584b4a15b302866e3577a82009dc89db7f8ff13f10feee2bb219f17a6a531485" | awk '{print $2}')
+          curl -s -X POST https://app.slipway.cloud/webhooks/build_failed/xqq5joo5r5papb13o40rusqv \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d "$PAYLOAD" || true
