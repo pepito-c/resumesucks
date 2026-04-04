@@ -46,7 +46,7 @@ jobs:
       - name: Notify Slipway
         run: |
           SIGNATURE=$(echo -n '{"image":"ghcr.io/pepito-c/resumesucks:latest","sha":"'$GITHUB_SHA'"}' | openssl dgst -sha256 -hmac "$SLIPWAY_WEBHOOK_SECRET" | awk '{print $2}')
-          curl -s -X POST https://app.slipway.cloud/webhooks/image_ready/agnkuggjtgsqtpz69tsku7s5 \
+          curl -s -X POST https://app.slipway.cloud/webhooks/image_ready/blmubjl98rqhhkahmk0ml4ow \
             -H "Content-Type: application/json" \
             -H "X-Slipway-Signature: sha256=$SIGNATURE" \
             -d '{"image":"ghcr.io/pepito-c/resumesucks:latest","sha":"'$GITHUB_SHA'"}'
